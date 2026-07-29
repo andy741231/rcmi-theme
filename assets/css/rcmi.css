@@ -624,6 +624,39 @@ hr.rule{
   .tab-panel .card-grid{ grid-template-columns:1fr; }
 }
 
+/* --------------------------- tab transitions ------------------------------- */
+/* When data-transition is set on the wrapper, panels animate between tabs.
+   The JS adds .tab-leaving to the outgoing panel and .tab-entering to the
+   incoming panel, then removes them after the animation completes.
+   During transition, .tab-panels gets position:relative so panels can
+   overlap via position:absolute. */
+.tab-panels[data-transition="fade"] .tab-panel,
+.tab-panels[data-transition="slide"] .tab-panel,
+.tab-panels[data-transition="curtain"] .tab-panel{
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+/* Fade: old panel fades out, new panel fades in */
+.tab-panels[data-transition="fade"] .tab-panel.tab-leaving{ opacity: 0; }
+.tab-panels[data-transition="fade"] .tab-panel.tab-entering{ opacity: 0; }
+.tab-panels[data-transition="fade"] .tab-panel.tab-entering.tab-entered{ opacity: 1; }
+/* Slide: old panel slides out left, new panel slides in from right */
+.tab-panels[data-transition="slide"] .tab-panel.tab-leaving{ opacity: 0; transform: translateX(-100%); }
+.tab-panels[data-transition="slide"] .tab-panel.tab-entering{ opacity: 0; transform: translateX(100%); }
+.tab-panels[data-transition="slide"] .tab-panel.tab-entering.tab-entered{ opacity: 1; transform: translateX(0); }
+/* Curtain: old panel scrolls up out, new panel scrolls up in */
+.tab-panels[data-transition="curtain"] .tab-panel.tab-leaving{ opacity: 0; transform: translateY(-100%); }
+.tab-panels[data-transition="curtain"] .tab-panel.tab-entering{ opacity: 0; transform: translateY(100%); }
+.tab-panels[data-transition="curtain"] .tab-panel.tab-entering.tab-entered{ opacity: 1; transform: translateY(0); }
+/* During transition, panels overlap */
+.tab-panels.is-animating{ position: relative; }
+.tab-panels.is-animating .tab-panel{ position: absolute; top: 0; left: 0; right: 0; }
+.tab-panels.is-animating .tab-panel.tab-entering{ display: block; }
+@media (prefers-reduced-motion: reduce){
+  .tab-panels[data-transition="fade"] .tab-panel,
+  .tab-panels[data-transition="slide"] .tab-panel,
+  .tab-panels[data-transition="curtain"] .tab-panel{ transition: none !important; transform: none !important; opacity: 1 !important; }
+}
+
 /* ------------------------------- panel groups -------------------------------- */
 .panel-group{ display:flex; flex-direction:column; }
 .panel{

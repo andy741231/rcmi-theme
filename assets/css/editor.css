@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=League+Gothic&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+
 /* Editor-only styles — bring editor closer to front-end appearance */
 .editor-styles-wrapper {
   font-family: var(--font-body);
@@ -82,7 +84,7 @@
   max-width: 570px;
   margin-bottom: 10px;
   font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 3.55vw, 3.35rem);
+  font-size: 3.125rem;
   font-weight: 600;
   text-transform: none;
   letter-spacing: -0.025em;
@@ -376,7 +378,7 @@
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
   margin-bottom: 10px;
   font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 3.55vw, 3.35rem);
+  font-size: 3.125rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 0.98;

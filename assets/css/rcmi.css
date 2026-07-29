@@ -493,8 +493,8 @@ hr.rule{
 .impact-steps{ display:flex; align-items:stretch; height:100%; }
 .impact-step{
   position:relative; min-height:100%; display:flex; align-items:center; gap:10px; flex:1 1 0;
-  padding:12px 14px; border-left:1px solid #eadfd4; color:#7d2832;
-  background:#fbf7f0; border-top:none; border-right:none; border-bottom:none;
+  padding:12px 14px; border-left:1px solid #eadfd4; color:var(--tab-btn-text, #7d2832);
+  background:var(--tab-btn-bg, #fbf7f0); border-top:none; border-right:none; border-bottom:none;
   font-family: inherit; cursor: pointer; width:100%; text-align:left;
   transition:background var(--transition), color var(--transition);
 }
@@ -511,17 +511,17 @@ hr.rule{
 .impact-step-copy em{ font-style:normal; font-size:.6rem; line-height:1.25; color:#9a8f86; transition: color var(--transition); }
 
 /* inactive state (default) */
-.impact-step{ color:#7d2832; }
+.impact-step{ color:var(--tab-btn-text, #7d2832); }
 .impact-step-icon{ background:#f3e4e1; color:#b58a8e; }
 
 /* active state */
-.impact-step.is-active{ background:#fff; color:var(--red); }
+.impact-step.is-active{ background:var(--tab-btn-active-bg, #fff); color:var(--tab-btn-active-text, var(--red)); }
 .impact-step.is-active::after{
   content:""; position:absolute; left:0; right:0; bottom:0; height:3px;
   background:var(--red);
 }
 .impact-step.is-active .impact-step-icon{ background:var(--red); color:#fff; }
-.impact-step.is-active .impact-step-copy strong{ color:var(--red); }
+.impact-step.is-active .impact-step-copy strong{ color:var(--tab-btn-active-text, var(--red)); }
 .impact-step.is-active .impact-step-copy em{ color:#c8102e; opacity:.8; }
 
 .impact-stats-wrap{ position:relative; z-index:10; }

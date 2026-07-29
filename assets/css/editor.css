@@ -279,11 +279,11 @@
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-steps { display: flex; align-items: stretch; }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step {
   position: relative; display: flex; align-items: center; gap: 10px; padding: 12px 14px; flex: 1 1 0;
-  border-left: 1px solid #eadfd4; background: #fbf7f0; border: none; border-left: 1px solid #eadfd4;
-  font-family: inherit; cursor: pointer; width: 100%; text-align: left; color: #7d2832;
+  border-left: 1px solid #eadfd4; background: var(--tab-btn-bg, #fbf7f0); border: none; border-left: 1px solid #eadfd4;
+  font-family: inherit; cursor: pointer; width: 100%; text-align: left; color: var(--tab-btn-text, #7d2832);
 }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step:first-child { border-left: none; }
-.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step.is-active { background: #fff; color: var(--red); }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step.is-active { background: var(--tab-btn-active-bg, #fff); color: var(--tab-btn-active-text, var(--red)); }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step.is-active::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: #C8102E;
 }

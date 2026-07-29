@@ -343,6 +343,44 @@ function rcmi_theme_maybe_refresh_release_cache() {
 add_action( 'admin_init', 'rcmi_theme_maybe_refresh_release_cache' );
 
 /**
+ * Show an admin notice on the Themes page when a theme update is available,
+ * with a prominent "Check for updates" button.
+ */
+function rcmi_theme_update_admin_notice() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'themes' !== $screen->id ) {
+		return;
+	}
+
+	// Always show a "Check for updates" button on the Themes page.
+	$check_url = add_query_arg( 'rcmi_theme_check_updates', '1', admin_url( 'themes.php' ) );
+
+	// Check if an update is available.
+	$commit = rcmi_theme_get_github_commit();
+	$installed_sha = rcmi_theme_get_installed_sha();
+	$update_available = $commit && $commit['sha'] !== $installed_sha;
+
+	if ( $update_available ) {
+		?>
+		<div class="notice notice-warning is-dismissible" style="display:flex;align-items:center;gap:12px;">
+			<p style="margin:0;"><strong>RCMI Theme:</strong> A new update is available
+			(<?php echo esc_html( $commit['short_sha'] ); ?> — <?php echo esc_html( wp_trim_words( $commit['message'], 8 ) ); ?>).</p>
+			<a href="<?php echo esc_url( $check_url ); ?>" class="button button-primary">Check for updates</a>
+		</div>
+		<?php
+	} else {
+		// Show a subtle "Check for updates" link even when up to date.
+		?>
+		<div class="notice notice-info is-dismissible" style="display:flex;align-items:center;gap:12px;">
+			<p style="margin:0;">RCMI Theme: Check for updates from GitHub.</p>
+			<a href="<?php echo esc_url( $check_url ); ?>" class="button button-secondary">Check for updates</a>
+		</div>
+		<?php
+	}
+}
+add_action( 'admin_notices', 'rcmi_theme_update_admin_notice' );
+
+/**
  * Add a "Check for updates" link to the theme's action row on the
  * Themes page. Clicking it forces an immediate GitHub API check.
  *

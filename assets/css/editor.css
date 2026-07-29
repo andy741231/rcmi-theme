@@ -1,0 +1,399 @@
+/* Editor-only styles — bring editor closer to front-end appearance */
+.editor-styles-wrapper {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: #111213;
+}
+.editor-styles-wrapper mark.has-inline-color{ background-color: transparent; }
+.editor-styles-wrapper .has-display-font{ font-family: 'League Gothic', 'Arial Narrow', sans-serif !important; text-transform: uppercase; letter-spacing: 0.01em; }
+.editor-styles-wrapper .has-body-font{ font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif !important; }
+.editor-styles-wrapper .has-serif-font{ font-family: 'Crimson Pro', Georgia, serif !important; }
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper h4 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  font-weight: 400;
+}
+.editor-styles-wrapper .wp-block-group.section {
+  padding: 96px 0;
+}
+.editor-styles-wrapper .wp-block-group.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* === RCMI Hero block editor styles === */
+/* The hero background is full-bleed; its inner content remains centered. */
+.editor-styles-wrapper .wp-block-rcmi-parallax.rcmi-parallax-editor.hero,
+.editor-styles-wrapper .rcmi-parallax-editor.hero {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+  position: relative;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  padding-bottom: 100px;
+  color: var(--color-fg);
+  overflow: visible;
+  background: #f8f5ee;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 30px var(--space-3);
+  box-sizing: border-box;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-grid {
+  display: grid;
+  grid-template-columns: repeat(12,1fr);
+  gap: var(--grid-gap);
+  align-items: center;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy {
+  grid-column: 1 / 7;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1 {
+  max-width: 570px;
+  margin-bottom: 10px;
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 3.55vw, 3.35rem);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .eyebrow {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--color-fg);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .lede {
+  max-width: 480px;
+  margin-bottom: 0;
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  font-size: 1.12rem;
+  line-height: 1.4;
+}
+/* When block-level text color is set, eyebrow/lede/h1 inherit it */
+.editor-styles-wrapper .has-text-color.rcmi-parallax-editor .hero-copy h1,
+.editor-styles-wrapper .has-text-color.rcmi-parallax-editor .hero-copy .eyebrow,
+.editor-styles-wrapper .has-text-color.rcmi-parallax-editor .hero-copy .lede { color: inherit; }
+.editor-styles-wrapper .rcmi-parallax-editor .hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .btn-primary {
+  display: inline-block;
+  padding: 14px 26px;
+  font-size: 0.92rem;
+  border: 1px solid var(--red);
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* === Image picker sidebar styles === */
+.rcmi-image-picker-btn {
+  display: block;
+  margin-bottom: 12px;
+}
+.rcmi-image-preview {
+  margin-top: 8px;
+}
+.rcmi-image-preview img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin-bottom: 8px;
+}
+
+/* === Full-bleed helper for all RCMI section blocks === */
+.editor-styles-wrapper .wp-block-rcmi-quote-block.rcmi-quote-editor,
+.editor-styles-wrapper .wp-block-rcmi-cta-band.rcmi-cta-editor,
+.editor-styles-wrapper .wp-block-rcmi-impact-stats-block.rcmi-impact-stats-editor,
+.editor-styles-wrapper .wp-block-rcmi-role-selector-block.rcmi-role-selector-editor,
+.editor-styles-wrapper .wp-block-rcmi-impact-strip-block.rcmi-impact-strip-block-editor {
+  width: 100%;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+}
+
+/* === RCMI Quote Block editor styles === */
+.editor-styles-wrapper .rcmi-quote-editor.bg-alt { background: #F4F5F5; padding: 96px 0; }
+.editor-styles-wrapper .rcmi-quote-editor .quote-block {
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: center;
+  max-width: 1280px; margin: 0 auto; padding: 0 24px;
+}
+.editor-styles-wrapper .rcmi-quote-editor .quote-mark {
+  grid-column: 1/3; font-family: var(--font-display); font-size: 6rem; color: var(--red); line-height: 1;
+}
+.editor-styles-wrapper .rcmi-quote-editor .quote-mark-close { grid-column: 11/13; text-align: right; align-self: flex-end; }
+.editor-styles-wrapper .rcmi-quote-editor .quote-body { grid-column: 3/11; }
+.editor-styles-wrapper .rcmi-quote-editor .quote-body p {
+  font-family: 'Crimson Pro', Georgia, serif; font-style: italic;
+  font-size: clamp(1.2rem, 2vw, 1.6rem); color: var(--color-fg);
+}
+.editor-styles-wrapper .rcmi-quote-editor .quote-body cite {
+  display: block; margin-top: 16px; font-style: normal; font-weight: 700; font-size: 0.9rem;
+}
+.editor-styles-wrapper .rcmi-quote-editor .quote-body cite span {
+  display: block; font-weight: 400; color: var(--color-fg-muted); font-size: 0.85rem;
+}
+/* When block-level text color is set, quote text inherits it */
+.editor-styles-wrapper .has-text-color.rcmi-quote-editor .quote-body p,
+.editor-styles-wrapper .has-text-color.rcmi-quote-editor .quote-body cite,
+.editor-styles-wrapper .has-text-color.rcmi-quote-editor .quote-body cite span { color: inherit; }
+
+/* === RCMI CTA Band editor styles === */
+.editor-styles-wrapper .rcmi-cta-editor.bg-primary { background: #C8102E; color: #fff; padding: 80px 0; }
+.editor-styles-wrapper .rcmi-cta-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.editor-styles-wrapper .rcmi-cta-editor .cta-band {
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: center;
+}
+.editor-styles-wrapper .rcmi-cta-editor .cta-copy { grid-column: 1/8; }
+.editor-styles-wrapper .rcmi-cta-editor .cta-copy h2 { color: #fff; }
+.editor-styles-wrapper .rcmi-cta-editor .cta-copy p { color: rgba(255,255,255,0.9); }
+/* When block-level text color is set, CTA heading/text inherit it */
+.editor-styles-wrapper .has-text-color.rcmi-cta-editor .cta-copy h2,
+.editor-styles-wrapper .has-text-color.rcmi-cta-editor .cta-copy p { color: inherit; }
+/* Button keeps its own color */
+.editor-styles-wrapper .has-text-color.rcmi-cta-editor .cta-actions .btn { color: #fff; }
+.editor-styles-wrapper .has-text-color.rcmi-cta-editor .cta-actions .btn.btn-primary { color: var(--red); }
+.editor-styles-wrapper .rcmi-cta-editor .cta-actions { grid-column: 8/-1; display: flex; gap: 16px; justify-content: flex-end; flex-wrap: wrap; }
+.editor-styles-wrapper .rcmi-cta-editor .btn {
+  display: inline-block; padding: 14px 26px; font-size: 0.92rem; border-radius: 999px; border: 1px solid; text-decoration: none;
+}
+.editor-styles-wrapper .rcmi-cta-editor .btn-outline { background: transparent; border-color: #fff; color: #fff; }
+.editor-styles-wrapper .rcmi-cta-editor .btn-primary { background: #fff; border-color: #fff; color: var(--red); }
+
+/* === RCMI Impact Stats editor styles === */
+.editor-styles-wrapper .rcmi-impact-stats-editor { padding: 48px 0; }
+.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stats-wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding: 48px 24px 40px; background: #fff;
+}
+/* Inline style from JS sets grid-template-columns dynamically based on statCount. */
+.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stat strong {
+  display: block; color: var(--red); font-family: var(--font-display); font-size: 4.2rem; line-height: 0.85;
+}
+.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stat span {
+  display: block; margin-top: 10px; padding-top: 10px; border-top: 2px solid #C8102E;
+  color: var(--red); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+}
+.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stat p { margin: 8px 0 0; color: #5b5551; font-size: 0.78rem; }
+/* When block-level text color is set, stat label and desc inherit it */
+.editor-styles-wrapper .has-text-color.rcmi-impact-stats-editor .impact-stat span,
+.editor-styles-wrapper .has-text-color.rcmi-impact-stats-editor .impact-stat p { color: inherit; }
+.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stats-cta { grid-column: 1/-1; display: flex; justify-content: center; margin-top: 24px; }
+.editor-styles-wrapper .rcmi-impact-stats-editor .btn-primary {
+  display: inline-block; padding: 12px 24px; font-size: 0.85rem; border-radius: 999px;
+  background: #C8102E; color: #fff; border: 1px solid #C8102E; text-decoration: none;
+}
+
+/* === RCMI Role Selector editor styles === */
+.editor-styles-wrapper .rcmi-role-selector-editor.collaborating-section {
+  position: relative; overflow: hidden; padding: 112px 0 72px;
+  background: #fff url('../images/iam.png') no-repeat center / cover;
+}
+.editor-styles-wrapper .rcmi-role-selector-editor.collaborating-section::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(125deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.85) 40%, rgba(255,255,255,0) 100%);
+}
+.editor-styles-wrapper .rcmi-role-selector-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+.editor-styles-wrapper .rcmi-role-selector-editor .section-head { display: block; max-width: 520px; margin-bottom: 64px; }
+.editor-styles-wrapper .rcmi-role-selector-editor .eyebrow {
+  display: block; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-fg);
+}
+.editor-styles-wrapper .rcmi-role-selector-editor .section-head h2 {
+  margin: 18px 0 24px; font-family: 'Crimson Pro', serif; font-size: clamp(3rem, 8vw, 6rem); font-weight: 400; color: var(--red); line-height: 0.78;
+}
+.editor-styles-wrapper .rcmi-role-selector-editor .section-note { max-width: 430px; color: var(--color-fg); font-size: 1.18rem; }
+.editor-styles-wrapper .rcmi-role-selector-editor .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.editor-styles-wrapper .rcmi-role-selector-editor .role-card {
+  min-height: 220px; border: 1px solid #eee5e2; border-radius: 14px; padding: 28px 32px 24px;
+  background: rgba(255,255,255,0.94); display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: inherit;
+}
+.editor-styles-wrapper .rcmi-role-selector-editor .role-card h4 {
+  margin: 4px 0 0; text-transform: none; font-family: var(--font-body); font-weight: 700; font-size: 1.2rem;
+}
+.editor-styles-wrapper .rcmi-role-selector-editor .role-card p { font-size: 1rem; color: var(--color-fg-muted); margin: 0; flex: 1; }
+.editor-styles-wrapper .rcmi-role-selector-editor .role-link { font-size: 1rem; font-weight: 700; color: var(--red); }
+/* When block-level text color is set, role selector text fields inherit it */
+.editor-styles-wrapper .has-text-color.rcmi-role-selector-editor .section-head .eyebrow,
+.editor-styles-wrapper .has-text-color.rcmi-role-selector-editor .section-head h2,
+.editor-styles-wrapper .has-text-color.rcmi-role-selector-editor .section-head h2::first-letter,
+.editor-styles-wrapper .has-text-color.rcmi-role-selector-editor .section-note,
+.editor-styles-wrapper .has-text-color.rcmi-role-selector-editor .role-card h4,
+.editor-styles-wrapper .has-text-color.rcmi-role-selector-editor .role-card p { color: inherit; }
+
+/* === RCMI Impact Strip Block editor styles === */
+.editor-styles-wrapper .rcmi-impact-strip-block-editor { padding: 0; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .rcmi-block-notice {
+  background: #fffbe6; border: 1px solid #f0e0a0; padding: 12px 16px; margin-bottom: 16px; border-radius: 4px;
+}
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-overview { position: relative; z-index: 20; padding: 0; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-strip {
+  display: grid; grid-template-columns: 1fr; min-height: 92px; overflow: hidden;
+  border-radius: 10px; background: #fbf7f0;
+}
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-steps { display: grid; grid-template-columns: repeat(5, 1fr); }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step {
+  position: relative; display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-left: 1px solid #eadfd4; background: #fbf7f0; border: none; border-left: 1px solid #eadfd4;
+  font-family: inherit; cursor: pointer; width: 100%; text-align: left; color: #7d2832;
+}
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step:first-child { border-left: none; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step.is-active { background: #fff; color: var(--red); }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step.is-active::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: #C8102E;
+}
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step-copy strong {
+  font-size: 0.92rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel { padding: 40px 0 48px; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head { display: block; margin-bottom: 0; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head > div { width: 42%; padding-top: 20px; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem); line-height: 0.95; margin: 12px 0 14px;
+}
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-note { width: 38%; font-size: 0.9rem; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .card {
+  min-height: 158px; border-radius: 9px; background: rgba(255,255,255,0.96); padding: 24px;
+  box-shadow: 0 6px 18px rgba(51,35,22,0.08); border: none;
+}
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .card .tag { color: var(--teal-dark); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .card h4 { text-transform: none; font-family: var(--font-body); font-weight: 700; font-size: 1.05rem; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .card p { font-size: 0.92rem; color: var(--color-fg-muted); }
+/* When block-level text color is set, impact strip editor text inherits it */
+.editor-styles-wrapper .has-text-color.rcmi-impact-strip-block-editor .tab-panel .section-head h2 span,
+.editor-styles-wrapper .has-text-color.rcmi-impact-strip-block-editor .tab-panel .section-head h2 strong,
+.editor-styles-wrapper .has-text-color.rcmi-impact-strip-block-editor .tab-panel .section-note,
+.editor-styles-wrapper .has-text-color.rcmi-impact-strip-block-editor .tab-panel .card .tag,
+.editor-styles-wrapper .has-text-color.rcmi-impact-strip-block-editor .tab-panel .card h4,
+.editor-styles-wrapper .has-text-color.rcmi-impact-strip-block-editor .tab-panel .card p { color: inherit; }
+/* Button always keeps its own color regardless of block text color */
+.editor-styles-wrapper .has-text-color.rcmi-impact-strip-block-editor .tab-panel .btn { color: #fff; }
+
+/* === RCMI Parallax block editor styles === */
+.editor-styles-wrapper .wp-block-rcmi-parallax.rcmi-parallax-editor {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: var(--color-fg);
+  background: #f8f5ee;
+}
+.editor-styles-wrapper .rcmi-parallax-layers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.editor-styles-wrapper .rcmi-parallax-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.editor-styles-wrapper .rcmi-parallax-layer-preview {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.editor-styles-wrapper .rcmi-parallax-layer-preview:nth-child(2) {
+  /* Middle layer preview shown at reduced opacity so layers are distinguishable. */
+  opacity: 0.85;
+}
+.editor-styles-wrapper .rcmi-layer-label {
+  padding: 6px 14px;
+  border: 2px dashed #b0a89e;
+  border-radius: 6px;
+  color: #8a8078;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-inner {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 40px var(--space-3);
+  box-sizing: border-box;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy { max-width: 570px; }
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
+  margin-bottom: 10px;
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 3.55vw, 3.35rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .eyebrow {
+  display: block; margin-bottom: 12px;
+  color: var(--color-fg); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .lede {
+  max-width: 480px; margin-bottom: 0; color: var(--color-fg); font-family: var(--font-serif); font-size: 1.12rem; line-height: 1.4;
+}
+/* When block-level text color is set, eyebrow/lede/h1 inherit it */
+.editor-styles-wrapper .has-text-color.rcmi-parallax-editor h1,
+.editor-styles-wrapper .has-text-color.rcmi-parallax-editor .eyebrow,
+.editor-styles-wrapper .has-text-color.rcmi-parallax-editor .lede { color: inherit; }
+.editor-styles-wrapper .rcmi-parallax-editor .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.editor-styles-wrapper .rcmi-parallax-editor .btn-primary {
+  display: inline-block; padding: 14px 26px; font-size: 0.92rem;
+  border: 1px solid var(--red); border-radius: 999px; background: var(--red); color: #fff; text-decoration: none;
+}

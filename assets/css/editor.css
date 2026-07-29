@@ -331,7 +331,6 @@
 .editor-styles-wrapper .rcmi-parallax-layers {
   position: absolute;
   inset: 0;
-  z-index: 0;
 }
 .editor-styles-wrapper .rcmi-parallax-scrim {
   position: absolute;

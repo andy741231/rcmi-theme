@@ -48,6 +48,7 @@
 /* ---------------------------------- base --------------------------------- */
 *{ box-sizing: border-box; }
 mark.has-inline-color{ background-color: transparent; }
+mark.has-inline-highlight{ color: inherit; }
 .has-display-font{ font-family: 'League Gothic', 'Arial Narrow', sans-serif !important; text-transform: uppercase; letter-spacing: 0.01em; }
 .has-body-font{ font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif !important; }
 .has-serif-font{ font-family: 'Crimson Pro', Georgia, serif !important; }html{ scroll-behavior: smooth; scroll-padding-top: 248px; }

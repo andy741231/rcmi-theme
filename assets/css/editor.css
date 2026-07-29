@@ -6,6 +6,7 @@
   color: #111213;
 }
 .editor-styles-wrapper mark.has-inline-color{ background-color: transparent; }
+.editor-styles-wrapper mark.has-inline-highlight{ color: inherit; }
 .editor-styles-wrapper .has-display-font{ font-family: 'League Gothic', 'Arial Narrow', sans-serif !important; text-transform: uppercase; letter-spacing: 0.01em; }
 .editor-styles-wrapper .has-body-font{ font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif !important; }
 .editor-styles-wrapper .has-serif-font{ font-family: 'Crimson Pro', Georgia, serif !important; }

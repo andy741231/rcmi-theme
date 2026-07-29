@@ -84,7 +84,7 @@
   max-width: 570px;
   margin-bottom: 10px;
   font-family: var(--font-serif);
-  font-size: 3.125rem;
+  font-size: 3.75rem;
   font-weight: 600;
   text-transform: none;
   letter-spacing: -0.025em;
@@ -170,7 +170,7 @@
 .editor-styles-wrapper .rcmi-quote-editor .quote-mark-close { grid-column: 11/13; text-align: right; align-self: flex-end; }
 .editor-styles-wrapper .rcmi-quote-editor .quote-body { grid-column: 3/11; }
 .editor-styles-wrapper .rcmi-quote-editor .quote-body p {
-  font-family: 'Crimson Pro', Georgia, serif; font-style: italic;
+  font-family: var(--font-serif); font-style: italic;
   font-size: clamp(1.2rem, 2vw, 1.6rem); color: var(--color-fg);
 }
 .editor-styles-wrapper .rcmi-quote-editor .quote-body cite {
@@ -245,7 +245,7 @@
   display: block; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-fg);
 }
 .editor-styles-wrapper .rcmi-role-selector-editor .section-head h2 {
-  margin: 18px 0 24px; font-family: 'Crimson Pro', serif; font-size: clamp(3rem, 8vw, 6rem); font-weight: 400; color: var(--red); line-height: 0.78;
+  margin: 18px 0 24px; font-family: var(--font-serif); font-size: clamp(3rem, 8vw, 6rem); font-weight: 400; color: var(--red); line-height: 0.78;
 }
 .editor-styles-wrapper .rcmi-role-selector-editor .section-note { max-width: 430px; color: var(--color-fg); font-size: 1.18rem; }
 .editor-styles-wrapper .rcmi-role-selector-editor .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
@@ -378,7 +378,7 @@
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
   margin-bottom: 10px;
   font-family: var(--font-serif);
-  font-size: 3.125rem;
+  font-size: 3.75rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 0.98;
@@ -388,7 +388,7 @@
   color: var(--color-fg); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .lede {
-  max-width: 480px; margin-bottom: 0; color: var(--color-fg); font-family: var(--font-serif); font-size: 1.12rem; line-height: 1.4;
+  max-width: 480px; margin-bottom: 0; color: var(--color-fg); font-family: var(--font-body); font-size: 1.12rem; line-height: 1.4;
 }
 /* When block-level text color is set, eyebrow/lede/h1 inherit it */
 .editor-styles-wrapper .has-text-color.rcmi-parallax-editor h1,

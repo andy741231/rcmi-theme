@@ -55,7 +55,7 @@
 				{ "fluid": { "max": "1.4rem", "min": "1.1rem" }, "name": "Large", "size": "1.1rem", "slug": "large" },
 				{ "fluid": { "max": "1.9rem", "min": "1.35rem" }, "name": "Extra Large", "size": "1.35rem", "slug": "x-large" },
 				{ "fluid": { "max": "3.25rem", "min": "2rem" }, "name": "Display", "size": "2rem", "slug": "xx-large" },
-				{ "fluid": { "max": "5.5rem", "min": "2.75rem" }, "name": "Hero", "size": "2.75rem", "slug": "xxx-large" }
+				{ "fluid": { "max": "5.5rem", "min": "3.75rem" }, "name": "Hero", "size": "3.75rem", "slug": "xxx-large" }
 			],
 			"fontFamilies": [
 				{

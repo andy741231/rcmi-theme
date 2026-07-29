@@ -342,7 +342,7 @@ hr.rule{
   max-width: 570px;
   margin-bottom: 10px;
   font-family: var(--font-serif);
-  font-size: 3.125rem;
+  font-size: 3.75rem;
   font-weight: 600;
   text-transform:none;
   letter-spacing: -0.025em;
@@ -420,7 +420,7 @@ hr.rule{
 .rcmi-parallax-copy h1{
   margin-bottom: 10px;
   font-family: var(--font-serif);
-  font-size: 3.125rem;
+  font-size: 3.75rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   line-height: .98;
@@ -434,6 +434,7 @@ hr.rule{
   max-width: 480px;
   margin-bottom: 0;
   color: var(--color-fg);
+  font-family: var(--font-body);
   font-size: 1.12rem;
   line-height: 1.4;
 }

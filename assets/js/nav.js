@@ -54,7 +54,10 @@
         return;
       }
       isAnimating = true;
-      if (panelsContainer) panelsContainer.classList.add('is-animating');
+      if (panelsContainer) {
+        panelsContainer.classList.add('is-animating');
+        if (currentPanel) panelsContainer.style.minHeight = currentPanel.offsetHeight + 'px';
+      }
       targetPanel.classList.add('tab-entering', 'is-active');
       void targetPanel.offsetHeight;
       requestAnimationFrame(function () { targetPanel.classList.add('tab-entered'); });
@@ -62,7 +65,10 @@
       setTimeout(function () {
         if (currentPanel) currentPanel.classList.remove('is-active', 'tab-leaving');
         targetPanel.classList.remove('tab-entering', 'tab-entered');
-        if (panelsContainer) panelsContainer.classList.remove('is-animating');
+        if (panelsContainer) {
+          panelsContainer.classList.remove('is-animating');
+          panelsContainer.style.minHeight = '';
+        }
         isAnimating = false;
       }, 420);
     }

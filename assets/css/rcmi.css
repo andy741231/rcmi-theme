@@ -591,7 +591,7 @@ hr.rule{
 .tab-panel .section-head > div{ width:42%; padding-top:20px; }
 .tab-panel .section-head h2{
   display:flex; flex-direction:column; gap:0; margin:12px 0 14px;
-  font-size:clamp(2.7rem, 5vw, 4.4rem); line-height:.95;
+  font-size:clamp(2rem, 4vw, 3.5rem); line-height:.95;
 }
 .tab-panel .section-head h2 span{ color:var(--color-fg); }
 .tab-panel .section-head h2 strong{ color:var(--red); font-family:inherit; font-weight:400; }
@@ -616,7 +616,7 @@ hr.rule{
   .tab-panel{ padding-top:28px; }
   .tab-panel::before{ background:linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%); }
   .tab-panel .section-head > div, .tab-panel .section-note{ width:100%; max-width:520px; }
-  .tab-panel .section-head h2{ font-size:clamp(2.5rem, 11vw, 4rem); }
+  .tab-panel .section-head h2{ font-size:clamp(2.5rem, 11vw, 3.5rem); }
   .tab-panel .section-note{ margin-top:16px; }
   .tab-panel .card-grid{ grid-template-columns:repeat(2,1fr); }
 }
@@ -798,7 +798,7 @@ hr.rule{
 .collaborating-section .wrap{ position:relative; z-index:1; }
 .collaborating-section .section-head{ display:block; max-width:520px; margin-bottom:64px; }
 .collaborating-section .section-head h2{
-  margin:18px 0 24px; font-family:var(--font-serif); font-size:clamp(4.8rem, 10vw, 8.5rem);
+  margin:18px 0 24px; font-family:var(--font-serif); font-size:clamp(3rem, 8vw, 6rem);
   font-weight:400; line-height:.78; letter-spacing:-.04em;
 }
 .collaborating-section .section-head h2::first-letter{ color:var(--color-fg); }
@@ -847,7 +847,7 @@ hr.rule{
 }
 @media (max-width: 560px){
   .collaborating-section{ padding-top:64px; }
-  .collaborating-section .section-head h2{ font-size:5rem; }
+  .collaborating-section .section-head h2{ font-size:3.5rem; }
   .role-grid{ grid-template-columns:1fr; }
   .role-card{ min-height:180px; }
   .collaborating-callout{ align-items:flex-start; font-size:1rem; }

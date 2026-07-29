@@ -660,9 +660,11 @@ hr.rule{
 .tab-panels[data-transition="reveal"] .tab-panel.tab-entering.tab-entered{ opacity: 1; transform: scale(1); }
 /* During transition, panels overlap. overflow:hidden clips panels
    sliding in from outside (curtain/slide) so they're not visible
-   below or beside the container before they enter. */
+   below or beside the container before they enter.
+   transition:none prevents CSS transitions from fighting GSAP's
+   inline style changes (GSAP manages the animation via JS). */
 .tab-panels.is-animating{ position: relative; overflow: hidden; }
-.tab-panels.is-animating .tab-panel{ position: absolute; top: 0; left: 0; right: 0; }
+.tab-panels.is-animating .tab-panel{ position: absolute; top: 0; left: 0; right: 0; transition: none !important; }
 .tab-panels.is-animating .tab-panel.tab-entering{ display: block; }
 @media (prefers-reduced-motion: reduce){
   .tab-panels[data-transition] .tab-panel{ transition: none !important; transform: none !important; opacity: 1 !important; clip-path: none !important; }

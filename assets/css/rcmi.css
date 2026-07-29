@@ -574,6 +574,10 @@ hr.rule{
 /* ------------------------------- tab panels -------------------------------- */
 .tab-panel{ display:none; position:relative; overflow:hidden; padding:40px 0 48px; background-size:cover; background-position:center; background-repeat:no-repeat; }
 .tab-panel.is-active{ display:block; }
+/* When a fixed min-height is set via inline style, ensure content
+   is vertically centered within the panel. */
+.tab-panel[style*="min-height"]{ display:flex; flex-direction:column; justify-content:center; }
+.tab-panel[style*="min-height"] > .wrap{ flex:1; display:flex; flex-direction:column; justify-content:center; }
 .tab-panel::before{
   content:""; position:absolute; inset:0; z-index:0;
   background:linear-gradient(90deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);

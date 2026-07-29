@@ -276,9 +276,9 @@
   display: grid; grid-template-columns: 1fr; min-height: 92px; overflow: hidden;
   border-radius: 10px; background: #fbf7f0;
 }
-.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-steps { display: grid; grid-template-columns: repeat(5, 1fr); }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-steps { display: flex; align-items: stretch; }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .impact-step {
-  position: relative; display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  position: relative; display: flex; align-items: center; gap: 10px; padding: 12px 14px; flex: 1 1 0;
   border-left: 1px solid #eadfd4; background: #fbf7f0; border: none; border-left: 1px solid #eadfd4;
   font-family: inherit; cursor: pointer; width: 100%; text-align: left; color: #7d2832;
 }

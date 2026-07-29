@@ -490,9 +490,9 @@ hr.rule{
   background:#fbf7f0; box-shadow:0 16px 40px rgba(67,43,23,.22);
   position: relative; z-index: 21;
 }
-.impact-steps{ display:grid; grid-template-columns:repeat(5,1fr); align-items:stretch; height:100%; }
+.impact-steps{ display:flex; align-items:stretch; height:100%; }
 .impact-step{
-  position:relative; min-height:100%; display:flex; align-items:center; gap:10px;
+  position:relative; min-height:100%; display:flex; align-items:center; gap:10px; flex:1 1 0;
   padding:12px 14px; border-left:1px solid #eadfd4; color:#7d2832;
   background:#fbf7f0; border-top:none; border-right:none; border-bottom:none;
   font-family: inherit; cursor: pointer; width:100%; text-align:left;
@@ -561,7 +561,6 @@ hr.rule{
 .impact-stats-cta .btn svg{ width:16px; height:16px; }
 @media (max-width: 900px){
   .impact-overview{ margin-top:0; margin-bottom:0; padding:32px 0; }
-  .impact-steps{ grid-template-columns:repeat(5,1fr); }
   .impact-step{ padding:8px 4px; gap:6px; flex-direction:column; align-items:center; text-align:center; min-height:80px; }
   .impact-step-icon{ width:36px; height:36px; }
   .impact-step-icon svg{ width:20px; height:20px; }

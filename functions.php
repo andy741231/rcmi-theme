@@ -265,6 +265,60 @@ add_filter( 'pre_set_site_transient_update_themes', 'rcmi_theme_check_for_update
  * @param array  $result      Installation result data.
  * @return array
  */
+/**
+ * Recursively copy files from $src to $dst using PHP's native copy().
+ * Unlike WP_Filesystem methods, PHP's copy() can overwrite files on
+ * Windows even when they are locked by the running PHP process.
+ */
+function rcmi_theme_recursive_copy( $src, $dst ) {
+	if ( ! is_dir( $src ) ) {
+		return false;
+	}
+	if ( ! is_dir( $dst ) ) {
+		@mkdir( $dst, 0755, true );
+	}
+	$dir = opendir( $src );
+	if ( ! $dir ) {
+		return false;
+	}
+	while ( false !== ( $file = readdir( $dir ) ) ) {
+		if ( '.' === $file || '..' === $file ) {
+			continue;
+		}
+		$src_path = $src . '/' . $file;
+		$dst_path = $dst . '/' . $file;
+		if ( is_dir( $src_path ) ) {
+			rcmi_theme_recursive_copy( $src_path, $dst_path );
+		} else {
+			@copy( $src_path, $dst_path );
+		}
+	}
+	closedir( $dir );
+	return true;
+}
+
+/**
+ * Recursively delete a directory using PHP's native functions.
+ */
+function rcmi_theme_recursive_delete( $dir ) {
+	if ( ! is_dir( $dir ) ) {
+		return false;
+	}
+	$files = new RecursiveIteratorIterator(
+		new RecursiveDirectoryIterator( $dir, FilesystemIterator::SKIP_DOTS ),
+		RecursiveIteratorIterator::CHILD_FIRST
+	);
+	foreach ( $files as $fileinfo ) {
+		if ( $fileinfo->isDir() ) {
+			@rmdir( $fileinfo->getRealPath() );
+		} else {
+			@unlink( $fileinfo->getRealPath() );
+		}
+	}
+	@rmdir( $dir );
+	return true;
+}
+
 function rcmi_theme_post_install_rename( $response, $hook_extra, $result ) {
 	if ( ! isset( $hook_extra['theme'] ) ) {
 		return $result;
@@ -277,41 +331,21 @@ function rcmi_theme_post_install_rename( $response, $hook_extra, $result ) {
 	$actual   = basename( $result['destination'] );
 
 	if ( $expected !== $actual ) {
-		global $wp_filesystem;
-		if ( ! $wp_filesystem ) {
-			WP_Filesystem();
-		}
-
 		$new_destination = dirname( $result['destination'] ) . '/' . $expected;
 
-		// If the old theme directory still exists (common on Windows where
-		// locked files prevent deletion), remove it before renaming.
-		if ( $wp_filesystem && $wp_filesystem->exists( $new_destination ) ) {
-			$wp_filesystem->delete( $new_destination, true, 'd' );
-		}
+		// On Windows, the active theme's files are locked by PHP and cannot
+		// be deleted or renamed. The only reliable approach is to COPY files
+		// one-by-one from the new folder into the old folder (overwriting),
+		// then delete the temp folder (which is NOT locked).
+		rcmi_theme_recursive_copy( $result['destination'], $new_destination );
+		rcmi_theme_recursive_delete( $result['destination'] );
 
-		// Try rename via WP_Filesystem (handles FTP/SSH methods too).
-		$renamed = false;
-		if ( $wp_filesystem && $wp_filesystem->move( $result['destination'], $new_destination ) ) {
-			$renamed = true;
-		} elseif ( @rename( $result['destination'], $new_destination ) ) {
-			$renamed = true;
-		}
-
-		if ( $renamed ) {
-			$result['destination'] = $new_destination;
-			$result['destination_name'] = $expected;
-		} else {
-			// Last resort: recursive copy + delete.
-			if ( $wp_filesystem ) {
-				$wp_filesystem->delete( $new_destination, true, 'd' );
-				copy_dir( $result['destination'], $new_destination );
-				$wp_filesystem->delete( $result['destination'], true, 'd' );
-				$result['destination'] = $new_destination;
-				$result['destination_name'] = $expected;
-			}
-		}
+		$result['destination'] = $new_destination;
+		$result['destination_name'] = $expected;
 	}
+
+	// Clear the theme cache so WordPress sees the new files.
+	search_theme_directories( true );
 
 	$commit = rcmi_theme_get_github_commit();
 	if ( $commit && ! empty( $commit['sha'] ) ) {

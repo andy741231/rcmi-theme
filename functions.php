@@ -133,3 +133,201 @@ function rcmi_body_class( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'rcmi_body_class' );
+
+// ============================================================================
+// GitHub-based auto-update system (commit-based, no tags required)
+// Checks the latest commit on the main branch and surfaces updates in
+// WP Admin → Appearance → Themes as native "Update now" links.
+// No third-party plugins needed — same approach as the rcmi-toolkit plugin.
+// ============================================================================
+
+define( 'RCMI_THEME_GITHUB_USER', 'andy741231' );
+define( 'RCMI_THEME_GITHUB_REPO', 'rcmi-theme' );
+
+/**
+ * Fetch the latest commit info from the GitHub API.
+ * Cached for 6 hours in a transient to avoid rate-limiting.
+ *
+ * @return array|false Commit data or false on failure.
+ */
+function rcmi_theme_get_github_commit() {
+	$cache = get_transient( 'rcmi_theme_github_commit' );
+	if ( false !== $cache ) {
+		return $cache;
+	}
+
+	$url = sprintf(
+		'https://api.github.com/repos/%s/%s/commits/main',
+		RCMI_THEME_GITHUB_USER,
+		RCMI_THEME_GITHUB_REPO
+	);
+
+	$response = wp_remote_get( $url, array(
+		'headers' => array( 'Accept' => 'application/vnd.github.v3+json' ),
+		'timeout' => 10,
+	) );
+
+	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		set_transient( 'rcmi_theme_github_commit', false, 30 * MINUTE_IN_SECONDS );
+		return false;
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( empty( $body['sha'] ) ) {
+		set_transient( 'rcmi_theme_github_commit', false, 30 * MINUTE_IN_SECONDS );
+		return false;
+	}
+
+	$sha       = $body['sha'];
+	$short_sha = substr( $sha, 0, 7 );
+	$commit    = $body['commit'] ?? array();
+	$message   = $commit['message'] ?? '';
+	$date      = $commit['committer']['date'] ?? '';
+	$html_url  = $body['html_url'] ?? '';
+
+	$download_url = sprintf(
+		'https://codeload.github.com/%s/%s/zip/refs/heads/main',
+		RCMI_THEME_GITHUB_USER,
+		RCMI_THEME_GITHUB_REPO
+	);
+
+	$data = array(
+		'sha'          => $sha,
+		'short_sha'    => $short_sha,
+		'message'      => $message,
+		'date'         => $date,
+		'html_url'     => $html_url,
+		'download_url' => $download_url,
+	);
+
+	set_transient( 'rcmi_theme_github_commit', $data, 6 * HOUR_IN_SECONDS );
+	return $data;
+}
+
+/**
+ * Get the commit SHA that is currently installed.
+ *
+ * @return string Installed commit SHA or version string.
+ */
+function rcmi_theme_get_installed_sha() {
+	$sha = get_option( 'rcmi_theme_installed_sha' );
+	if ( ! empty( $sha ) ) {
+		return $sha;
+	}
+	// Backward compat: use theme version on first check.
+	return wp_get_theme()->get( 'Version' );
+}
+
+/**
+ * Inject update data into the WP update transient for themes.
+ *
+ * @param object $transient The update_themes transient.
+ * @return object
+ */
+function rcmi_theme_check_for_updates( $transient ) {
+	if ( empty( $transient->checked ) ) {
+		return $transient;
+	}
+
+	$commit = rcmi_theme_get_github_commit();
+	if ( ! $commit ) {
+		return $transient;
+	}
+
+	$installed_sha = rcmi_theme_get_installed_sha();
+	if ( $commit['sha'] === $installed_sha ) {
+		return $transient;
+	}
+
+	$theme_slug = get_template();
+
+	$update = array(
+		'theme'       => $theme_slug,
+		'new_version' => $commit['short_sha'],
+		'url'         => $commit['html_url'],
+		'package'     => $commit['download_url'],
+	);
+
+	$transient->response[ $theme_slug ] = $update;
+
+	return $transient;
+}
+add_filter( 'pre_set_site_transient_update_themes', 'rcmi_theme_check_for_updates' );
+
+/**
+ * Post-install cleanup: rename the GitHub ZIP's top-level folder
+ * (which is "rcmi-theme-<hash>") back to "rcmi" so WordPress
+ * doesn't end up with two theme folders.
+ * Also records the installed commit SHA.
+ *
+ * @param bool   $response    Install response.
+ * @param array  $hook_extra  Extra arguments.
+ * @param array  $result      Installation result data.
+ * @return array
+ */
+function rcmi_theme_post_install_rename( $response, $hook_extra, $result ) {
+	if ( ! isset( $hook_extra['theme'] ) ) {
+		return $result;
+	}
+	if ( false === strpos( $hook_extra['theme'], 'rcmi' ) ) {
+		return $result;
+	}
+
+	$expected = 'rcmi';
+	$actual   = basename( $result['destination'] );
+
+	if ( $expected !== $actual ) {
+		$new_destination = dirname( $result['destination'] ) . '/' . $expected;
+		if ( rename( $result['destination'], $new_destination ) ) {
+			$result['destination'] = $new_destination;
+			$result['destination_name'] = $expected;
+		}
+	}
+
+	$commit = rcmi_theme_get_github_commit();
+	if ( $commit && ! empty( $commit['sha'] ) ) {
+		update_option( 'rcmi_theme_installed_sha', $commit['sha'] );
+	}
+
+	delete_transient( 'rcmi_theme_github_commit' );
+
+	return $result;
+}
+add_filter( 'upgrader_post_install', 'rcmi_theme_post_install_rename', 10, 3 );
+
+/**
+ * Force a re-check of updates (clears the transient cache).
+ * Hooked to admin_init so the ?rcmi_theme_check_updates=1 link
+ * triggers an immediate GitHub API call.
+ */
+function rcmi_theme_maybe_refresh_release_cache() {
+	if ( isset( $_GET['rcmi_theme_check_updates'] ) ) {
+		delete_transient( 'rcmi_theme_github_commit' );
+		delete_site_transient( 'update_themes' );
+		rcmi_theme_get_github_commit();
+
+		$redirect = remove_query_arg( 'rcmi_theme_check_updates' );
+		wp_safe_redirect( $redirect );
+		exit;
+	}
+}
+add_action( 'admin_init', 'rcmi_theme_maybe_refresh_release_cache' );
+
+/**
+ * Add a "Check for updates" link to the theme's action row on the
+ * Themes page. Clicking it forces an immediate GitHub API check.
+ *
+ * @param array  $links Action links.
+ * @param string $file  Theme stylesheet.
+ * @return array
+ */
+function rcmi_theme_add_check_updates_link( $links, $file ) {
+	if ( 'rcmi' !== $file ) {
+		return $links;
+	}
+	$url = add_query_arg( 'rcmi_theme_check_updates', '1', admin_url( 'themes.php' ) );
+	$check_link = '<a href="' . esc_url( $url ) . '">Check for updates</a>';
+	array_unshift( $links, $check_link );
+	return $links;
+}
+add_filter( 'theme_action_links', 'rcmi_theme_add_check_updates_link', 10, 2 );

@@ -55,8 +55,9 @@
       }
       isAnimating = true;
       if (panelsContainer) {
+        var panelHeight = currentPanel ? currentPanel.offsetHeight : 0;
         panelsContainer.classList.add('is-animating');
-        if (currentPanel) panelsContainer.style.minHeight = currentPanel.offsetHeight + 'px';
+        if (panelHeight) panelsContainer.style.minHeight = panelHeight + 'px';
       }
       targetPanel.classList.add('tab-entering', 'is-active');
       void targetPanel.offsetHeight;
@@ -73,7 +74,10 @@
       }, 420);
     }
     tabs.forEach(function (tab) {
-      tab.addEventListener('click', function () {
+      tab.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      tab.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (document.activeElement === tab) { tab.blur(); }
         activate(tab.getAttribute('data-tab'));
       });
     });

@@ -573,11 +573,12 @@ hr.rule{
 /* ------------------------------- tab panels -------------------------------- */
 .tab-panel{ display:none; position:relative; overflow:hidden; padding:40px 0 48px; background-size:cover; background-position:center; background-repeat:no-repeat; }
 .tab-panel.is-active{ display:block; }
-/* When a fixed height is set via inline style, ensure content
-   is vertically centered within the active panel. Only target
-   .is-active so inactive panels stay display:none. */
-.tab-panel.is-active[style*="height:"]{ display:flex; flex-direction:column; justify-content:center; }
-.tab-panel.is-active[style*="height:"] > .wrap{ flex:1; display:flex; flex-direction:column; justify-content:center; overflow:hidden; }
+/* When a fixed height is set via inline style, use flexbox so the
+   content fills the panel. Content is top-aligned (flex-start) so
+   the heading sits at the same vertical position across all tabs
+   regardless of how many cards each tab has. */
+.tab-panel.is-active[style*="height:"]{ display:flex; flex-direction:column; justify-content:flex-start; }
+.tab-panel.is-active[style*="height:"] > .wrap{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; }
 .tab-panel::before{
   content:""; position:absolute; inset:0; z-index:0;
   background:linear-gradient(90deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);

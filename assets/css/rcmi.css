@@ -201,6 +201,8 @@ hr.rule{
   backdrop-filter: blur(6px);
   border-bottom: 1px solid rgba(0,0,0,0.15);
 }
+/* Push fixed header below the WordPress admin bar when logged in. */
+.admin-bar .site-header{ top: var(--wp-admin--admin-bar--height, 0px); }
 .site-header.is-transparent{
   background: color-mix(in srgb, var(--rcmi-header-bg, var(--color-primary)) 85%, transparent);
   backdrop-filter: blur(12px);

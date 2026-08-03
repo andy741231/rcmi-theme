@@ -25,6 +25,7 @@ if ( ! function_exists( 'rcmi_setup' ) ) {
 
 		register_nav_menus( array(
 			'primary' => __( 'Primary Navigation', 'rcmi' ),
+			'footer'  => __( 'Footer Navigation', 'rcmi' ),
 		) );
 
 		// Register block patterns by category.
@@ -41,9 +42,22 @@ if ( ! function_exists( 'rcmi_setup' ) ) {
 		foreach ( $pattern_categories as $slug => $args ) {
 			register_block_pattern_category( $slug, $args );
 		}
+
+		// Editor styles — must be registered during after_setup_theme so the
+		// Site Editor's iframe picks them up. Calling add_editor_style() during
+		// enqueue_block_editor_assets is too late in the lifecycle for WP 7.0+.
+		add_editor_style( 'assets/css/rcmi.css' );
+		add_editor_style( 'assets/css/editor.css' );
 	}
 }
 add_action( 'after_setup_theme', 'rcmi_setup' );
+
+/**
+ * Custom nav walkers for the dynamic site header block.
+ */
+require_once get_template_directory() . '/inc/class-rcmi-nav-walker.php';
+require_once get_template_directory() . '/inc/class-rcmi-mobile-nav-walker.php';
+require_once get_template_directory() . '/inc/class-rcmi-footer-walker.php';
 
 function rcmi_editor_font_family_settings( $settings ) {
 	$settings['fontFamilies'] = array(
@@ -104,11 +118,20 @@ function rcmi_editor_assets() {
 		null
 	);
 
-	// Theme CSS + editor CSS — loaded into the editor iframe only.
-	// add_editor_style() processes these and injects them into the canvas,
-	// keeping the admin UI (sidebar/toolbar) unaffected.
-	add_editor_style( 'assets/css/rcmi.css' );
-	add_editor_style( 'assets/css/editor.css' );
+	// Theme CSS + editor CSS are registered via add_editor_style() in
+	// rcmi_setup() (after_setup_theme) — that's the correct hook for the
+	// Site Editor's iframe to pick them up in WP 7.0+.
+
+	// Editor-side registration for the rcmi/site-header and rcmi/site-footer
+	// dynamic blocks so the Site Editor shows live ServerSideRender previews
+	// with InspectorControls (color pickers + style toggles).
+	wp_enqueue_script(
+		'rcmi-site-header-block',
+		get_template_directory_uri() . '/assets/js/site-header-block.js',
+		array( 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-components', 'wp-i18n', 'wp-server-side-render' ),
+		rcmi_asset_version( get_template_directory() . '/assets/js/site-header-block.js' ),
+		true
+	);
 }
 add_action( 'enqueue_block_editor_assets', 'rcmi_editor_assets' );
 
@@ -133,6 +156,551 @@ function rcmi_body_class( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'rcmi_body_class' );
+
+// ============================================================================
+// Dynamic site header block (rcmi/site-header)
+// Renders the site header + mobile nav from the "primary" WordPress nav menu
+// (managed via Appearance > Menus). Editors add/remove/reorder items there;
+// the custom walkers preserve the .nav-links / .dropdown / .mobile-nav markup
+// that the theme CSS expects. The logo, CTA buttons, and toggle are rendered
+// by the block (not the menu) since they are header chrome, not navigation.
+// ============================================================================
+
+/**
+ * Register the rcmi/site-header dynamic block.
+ */
+function rcmi_register_site_header_block() {
+	register_block_type( 'rcmi/site-header', array(
+		'attributes'      => array(
+			'backgroundColor' => array( 'type' => 'string', 'default' => '' ),
+			'textColor'       => array( 'type' => 'string', 'default' => '' ),
+			'accentColor'     => array( 'type' => 'string', 'default' => '' ),
+			'ctaBgColor'      => array( 'type' => 'string', 'default' => '' ),
+			'ctaTextColor'    => array( 'type' => 'string', 'default' => '' ),
+			'sticky'          => array( 'type' => 'boolean', 'default' => true ),
+			'transparent'     => array( 'type' => 'boolean', 'default' => false ),
+			'logoMark'        => array( 'type' => 'string', 'default' => 'RC' ),
+			'logoText'        => array( 'type' => 'string', 'default' => 'RCMI' ),
+			'logoSub'         => array( 'type' => 'string', 'default' => 'Research Capacity & Mentoring Institute' ),
+			'logoImageId'     => array( 'type' => 'number', 'default' => 0 ),
+			'logoImageUrl'    => array( 'type' => 'string', 'default' => '' ),
+			'buttons'         => array(
+				'type'    => 'array',
+				'default' => array(
+					array( 'text' => 'Request Support',   'link' => '/#start',              'style' => 'outline' ),
+					array( 'text' => 'Explore Research',  'link' => '/cores/#investigator', 'style' => 'primary' ),
+				),
+			),
+		),
+		'render_callback' => 'rcmi_render_site_header_block',
+	) );
+}
+add_action( 'init', 'rcmi_register_site_header_block' );
+
+/**
+ * Default menu items used to seed the Primary Menu on theme activation and
+ * to render a fallback when no menu is assigned to the "primary" location.
+ *
+ * @return array
+ */
+function rcmi_default_menu_items() {
+	return array(
+		array(
+			'title' => 'Home',
+			'url'   => home_url( '/' ),
+		),
+		array(
+			'title'    => 'About',
+			'url'      => home_url( '/about/' ),
+			'children' => array(
+				array( 'title' => 'Mission',       'url' => home_url( '/about/#mission' ) ),
+				array( 'title' => 'Why We Exist',  'url' => home_url( '/about/#why' ) ),
+			),
+		),
+		array(
+			'title'    => 'Core',
+			'url'      => home_url( '/cores/' ),
+			'children' => array(
+				array( 'title' => 'Admin Core',                'url' => home_url( '/cores/#admin' ) ),
+				array( 'title' => 'Investigator Core',         'url' => home_url( '/cores/#investigator' ) ),
+				array( 'title' => 'Community Engagement Core', 'url' => home_url( '/cores/#community' ) ),
+				array( 'title' => 'Research Core',             'url' => home_url( '/cores/#research' ) ),
+			),
+		),
+		array(
+			'title' => 'The Journey',
+			'url'   => home_url( '/journey/' ),
+		),
+		array(
+			'title'    => 'Resource',
+			'url'      => home_url( '/dashboard/' ),
+			'children' => array(
+				array( 'title' => 'Dashboard',          'url' => home_url( '/dashboard/' ) ),
+				array( 'title' => 'Research in Action', 'url' => home_url( '/stories/' ) ),
+				array( 'title' => 'Working Together',   'url' => home_url( '/partners/' ) ),
+				array( 'title' => 'Publication',        'url' => home_url( '/publications/' ) ),
+			),
+		),
+	);
+}
+
+/**
+ * Render callback for the rcmi/site-header block.
+ *
+ * Outputs <header class="site-header"> with the logo, the "primary" nav menu
+ * (desktop .nav-links with .dropdown sub-panels), CTA buttons, the mobile
+ * toggle, and the #mobile-nav panel (flat .mn-group / .is-sub structure).
+ * Block attributes set scoped CSS custom properties (--rcmi-header-bg, etc.)
+ * on the <header> and #mobile-nav elements so the CSS fallbacks are
+ * overridden only when a value is explicitly chosen.
+ *
+ * @param array $attributes Block attributes.
+ * @return string
+ */
+function rcmi_render_site_header_block( $attributes = array() ) {
+	$home_url = home_url( '/' );
+
+	// Build scoped CSS custom properties from block attributes.
+	$style_vars = rcmi_build_header_style_vars( $attributes );
+
+	// Build conditional classes.
+	$classes = array( 'site-header' );
+	if ( isset( $attributes['sticky'] ) && false === $attributes['sticky'] ) {
+		$classes[] = 'not-sticky';
+	}
+	if ( ! empty( $attributes['transparent'] ) ) {
+		$classes[] = 'is-transparent';
+	}
+	$header_class = esc_attr( implode( ' ', $classes ) );
+	$header_style = $style_vars ? ' style="' . esc_attr( $style_vars ) . '"' : '';
+
+	// Logo — uses an uploaded image if logoImageUrl is set, otherwise a text
+	// logo (mark badge + text + subtitle) from block attributes.
+	$logo_mark = isset( $attributes['logoMark'] ) ? $attributes['logoMark'] : 'RC';
+	$logo_text = isset( $attributes['logoText'] ) ? $attributes['logoText'] : 'RCMI';
+	$logo_sub  = isset( $attributes['logoSub'] ) ? $attributes['logoSub'] : 'Research Capacity & Mentoring Institute';
+	$logo_img  = ! empty( $attributes['logoImageUrl'] ) ? $attributes['logoImageUrl'] : '';
+
+	if ( $logo_img ) {
+		$logo = '<a href="' . esc_url( $home_url ) . '" class="nav-logo nav-logo-image">'
+			. '<img src="' . esc_url( $logo_img ) . '" alt="' . esc_attr( $logo_text ) . '" class="nav-logo-img" />'
+			. '</a>';
+	} else {
+		$logo = '<a href="' . esc_url( $home_url ) . '" class="nav-logo">'
+			. '<span class="mark">' . esc_html( $logo_mark ) . '</span>' . esc_html( $logo_text )
+			. '<span class="sub">' . esc_html( $logo_sub ) . '</span>'
+			. '</a>';
+	}
+
+	// Desktop nav (.nav-links with .dropdown sub-panels).
+	$nav_links = wp_nav_menu( array(
+		'theme_location' => 'primary',
+		'walker'         => new RCMI_Nav_Walker(),
+		'container'      => false,
+		'items_wrap'     => '<ul class="nav-links">%3$s</ul>',
+		'fallback_cb'    => 'rcmi_default_nav_fallback',
+		'echo'           => false,
+	) );
+
+	// CTA buttons (header chrome, not part of the nav menu).
+	$buttons = isset( $attributes['buttons'] ) ? $attributes['buttons'] : array(
+		array( 'text' => 'Request Support',   'link' => '/#start',              'style' => 'outline' ),
+		array( 'text' => 'Explore Research',  'link' => '/cores/#investigator', 'style' => 'primary' ),
+	);
+	$cta = '<div class="nav-cta">';
+	foreach ( $buttons as $btn ) {
+		if ( empty( $btn['text'] ) ) { continue; }
+		$btn_style = isset( $btn['style'] ) ? $btn['style'] : 'primary';
+		$btn_class = 'btn btn-' . ( 'outline' === $btn_style ? 'outline' : 'primary' );
+		$btn_link  = isset( $btn['link'] ) ? $btn['link'] : '#';
+		// Resolve relative links against the site URL.
+		if ( 0 === strpos( $btn_link, '/' ) ) {
+			$btn_link = home_url( $btn_link );
+		}
+		$cta .= '<a href="' . esc_url( $btn_link ) . '" class="' . esc_attr( $btn_class ) . '">' . esc_html( $btn['text'] ) . '</a>';
+	}
+	$cta .= '</div>';
+
+	// Mobile toggle button.
+	$toggle = '<button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">'
+		. '<svg viewBox="0 0 24 24" fill="none" width="26" height="26"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+		. '</button>';
+
+	$output  = '<header class="' . $header_class . '"' . $header_style . '>';
+	$output .= '<nav class="wrap nav">' . $logo . $nav_links . $cta . $toggle . '</nav>';
+	$output .= '</header>';
+
+	// Mobile nav panel (flat .mn-group / .is-sub structure, no <ul>).
+	// CSS vars are duplicated here because #mobile-nav is a sibling of <header>,
+	// not a child, so custom properties set on <header> don't cascade to it.
+	$mobile_links = wp_nav_menu( array(
+		'theme_location' => 'primary',
+		'walker'         => new RCMI_Mobile_Nav_Walker(),
+		'container'      => false,
+		'items_wrap'     => '%3$s',
+		'fallback_cb'    => 'rcmi_default_mobile_nav_fallback',
+		'echo'           => false,
+	) );
+
+	$mobile_cta  = '<div class="mn-cta">';
+	foreach ( $buttons as $btn ) {
+		if ( empty( $btn['text'] ) ) { continue; }
+		$btn_style = isset( $btn['style'] ) ? $btn['style'] : 'primary';
+		$btn_class = 'btn btn-' . ( 'outline' === $btn_style ? 'outline' : 'primary' );
+		$btn_link  = isset( $btn['link'] ) ? $btn['link'] : '#';
+		if ( 0 === strpos( $btn_link, '/' ) ) {
+			$btn_link = home_url( $btn_link );
+		}
+		$mobile_cta .= '<a href="' . esc_url( $btn_link ) . '" class="' . esc_attr( $btn_class ) . '">' . esc_html( $btn['text'] ) . '</a>';
+	}
+	$mobile_cta .= '</div>';
+
+	$output .= '<div id="mobile-nav" class="mobile-nav"' . $header_style . '>' . $mobile_links . $mobile_cta . '</div>';
+
+	return $output;
+}
+
+/**
+ * Build the scoped CSS custom property string for the header block from
+ * its attributes. Returns a semicolon-separated string of `--name: value`
+ * pairs (without the surrounding `style=""` attribute), or an empty string
+ * if no color attributes are set.
+ *
+ * @param array $attributes Block attributes.
+ * @return string
+ */
+function rcmi_build_header_style_vars( $attributes ) {
+	$vars = array();
+	$map  = array(
+		'backgroundColor' => '--rcmi-header-bg',
+		'textColor'       => '--rcmi-header-text',
+		'accentColor'     => '--rcmi-header-accent',
+		'ctaBgColor'      => '--rcmi-cta-bg',
+		'ctaTextColor'    => '--rcmi-cta-text',
+	);
+	foreach ( $map as $attr => $var ) {
+		if ( ! empty( $attributes[ $attr ] ) ) {
+			$vars[] = $var . ': ' . $attributes[ $attr ];
+		}
+	}
+	return implode( '; ', $vars );
+}
+
+/**
+ * Fallback for wp_nav_menu() when no menu is assigned to "primary": renders
+ * the default desktop .nav-links markup directly from rcmi_default_menu_items().
+ *
+ * @param array $args wp_nav_menu() arguments.
+ * @return string
+ */
+function rcmi_default_nav_fallback( $args ) {
+	$items = rcmi_default_menu_items();
+	$out   = '<ul class="nav-links">';
+	foreach ( $items as $item ) {
+		$out .= '<li>';
+		$out .= '<a href="' . esc_url( $item['url'] ) . '">';
+		$out .= esc_html( $item['title'] );
+		if ( ! empty( $item['children'] ) ) {
+			$out .= ' <svg viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5"/></svg>';
+		}
+		$out .= '</a>';
+		if ( ! empty( $item['children'] ) ) {
+			$out .= '<div class="dropdown">';
+			foreach ( $item['children'] as $child ) {
+				$out .= '<a href="' . esc_url( $child['url'] ) . '">' . esc_html( $child['title'] ) . '</a>';
+			}
+			$out .= '</div>';
+		}
+		$out .= '</li>';
+	}
+	$out .= '</ul>';
+	return $out;
+}
+
+/**
+ * Fallback for the mobile wp_nav_menu() call: renders the default flat
+ * .mn-group / .is-sub markup from rcmi_default_menu_items().
+ *
+ * @param array $args wp_nav_menu() arguments.
+ * @return string
+ */
+function rcmi_default_mobile_nav_fallback( $args ) {
+	$items = rcmi_default_menu_items();
+	$out   = '';
+	foreach ( $items as $item ) {
+		if ( ! empty( $item['children'] ) ) {
+			$out .= '<span class="mn-group">' . esc_html( $item['title'] ) . '</span>';
+			foreach ( $item['children'] as $child ) {
+				$out .= '<a class="is-sub" href="' . esc_url( $child['url'] ) . '">' . esc_html( $child['title'] ) . '</a>';
+			}
+		} else {
+			$out .= '<a href="' . esc_url( $item['url'] ) . '">' . esc_html( $item['title'] ) . '</a>';
+		}
+	}
+	return $out;
+}
+
+/**
+ * Auto-create the "Primary Menu" with the default items and assign it to the
+ * "primary" location on theme activation. Runs once; skips if a menu is
+ * already assigned or the menu already has items.
+ */
+function rcmi_auto_create_primary_menu() {
+	$locations = get_nav_menu_locations();
+	if ( ! empty( $locations['primary'] ) ) {
+		$existing = wp_get_nav_menu_object( $locations['primary'] );
+		if ( $existing && ! is_wp_error( $existing ) ) {
+			return; // A menu is already assigned to primary.
+		}
+	}
+
+	$menu     = wp_get_nav_menu_object( 'Primary Menu' );
+	$menu_id  = $menu ? $menu->term_id : wp_create_nav_menu( 'Primary Menu' );
+
+	// Don't duplicate items if the menu already has some.
+	$existing_items = wp_get_nav_menu_items( $menu_id );
+	if ( empty( $existing_items ) ) {
+		foreach ( rcmi_default_menu_items() as $item ) {
+			$parent_id = wp_update_nav_menu_item( $menu_id, 0, array(
+				'menu-item-title'  => $item['title'],
+				'menu-item-url'    => $item['url'],
+				'menu-item-status' => 'publish',
+			) );
+			if ( ! empty( $item['children'] ) ) {
+				foreach ( $item['children'] as $child ) {
+					wp_update_nav_menu_item( $menu_id, 0, array(
+						'menu-item-title'     => $child['title'],
+						'menu-item-url'       => $child['url'],
+						'menu-item-status'    => 'publish',
+						'menu-item-parent-id' => $parent_id,
+					) );
+				}
+			}
+		}
+	}
+
+	// Merge with existing locations so other menu assignments are preserved.
+	$locations['primary'] = (int) $menu_id;
+	set_theme_mod( 'nav_menu_locations', $locations );
+}
+add_action( 'after_switch_theme', 'rcmi_auto_create_primary_menu' );
+
+// ============================================================================
+// Dynamic site footer block (rcmi/site-footer)
+// Renders the site footer from the "footer" WordPress nav menu (managed via
+// Appearance > Menus). Each top-level menu item becomes a link column
+// (.footer-col) with an <h4> heading and a <ul> of child links; the brand
+// column and footer-bottom bar are rendered by the block itself (footer
+// chrome, not navigation).
+// ============================================================================
+
+/**
+ * Register the rcmi/site-footer dynamic block.
+ */
+function rcmi_register_site_footer_block() {
+	register_block_type( 'rcmi/site-footer', array(
+		'attributes'      => array(
+			'backgroundColor' => array( 'type' => 'string', 'default' => '' ),
+			'textColor'       => array( 'type' => 'string', 'default' => '' ),
+			'accentColor'     => array( 'type' => 'string', 'default' => '' ),
+			'borderTop'       => array( 'type' => 'boolean', 'default' => false ),
+			'logoMark'        => array( 'type' => 'string', 'default' => 'RC' ),
+			'logoText'        => array( 'type' => 'string', 'default' => 'RCMI' ),
+			'footerText'      => array( 'type' => 'string', 'default' => 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' ),
+		),
+		'render_callback' => 'rcmi_render_site_footer_block',
+	) );
+}
+add_action( 'init', 'rcmi_register_site_footer_block' );
+
+/**
+ * Default menu items used to seed the Footer Menu on theme activation and to
+ * render a fallback when no menu is assigned to the "footer" location.
+ *
+ * Top-level items become column headings; their children become the links.
+ *
+ * @return array
+ */
+function rcmi_default_footer_menu_items() {
+	return array(
+		array(
+			'title'    => 'About',
+			'url'      => home_url( '/about/' ),
+			'children' => array(
+				array( 'title' => 'Mission',      'url' => home_url( '/about/#mission' ) ),
+				array( 'title' => 'Why We Exist', 'url' => home_url( '/about/#why' ) ),
+			),
+		),
+		array(
+			'title'    => 'Core',
+			'url'      => home_url( '/cores/' ),
+			'children' => array(
+				array( 'title' => 'Admin Core',                'url' => home_url( '/cores/#admin' ) ),
+				array( 'title' => 'Investigator Core',         'url' => home_url( '/cores/#investigator' ) ),
+				array( 'title' => 'Community Core',            'url' => home_url( '/cores/#community' ) ),
+				array( 'title' => 'Research Core',             'url' => home_url( '/cores/#research' ) ),
+			),
+		),
+		array(
+			'title'    => 'Journey',
+			'url'      => home_url( '/journey/' ),
+			'children' => array(
+				array( 'title' => 'The Investigator Journey', 'url' => home_url( '/journey/' ) ),
+				array( 'title' => 'Start Collaborating',      'url' => home_url( '/#start' ) ),
+			),
+		),
+		array(
+			'title'    => 'Resource',
+			'url'      => home_url( '/dashboard/' ),
+			'children' => array(
+				array( 'title' => 'Dashboard',          'url' => home_url( '/dashboard/' ) ),
+				array( 'title' => 'Research in Action', 'url' => home_url( '/stories/' ) ),
+				array( 'title' => 'Working Together',   'url' => home_url( '/partners/' ) ),
+				array( 'title' => 'Publication',        'url' => home_url( '/publications/' ) ),
+			),
+		),
+	);
+}
+
+/**
+ * Render callback for the rcmi/site-footer block.
+ *
+ * Outputs <footer class="site-footer"> with the brand column, the "footer"
+ * nav menu rendered as .footer-col columns, and the footer-bottom bar.
+ *
+ * @return string
+ */
+function rcmi_render_site_footer_block( $attributes = array() ) {
+	$home_url = home_url( '/' );
+
+	// Build scoped CSS custom properties from block attributes.
+	$style_vars = array();
+	$var_map    = array(
+		'backgroundColor' => '--rcmi-footer-bg',
+		'textColor'       => '--rcmi-footer-text',
+		'accentColor'     => '--rcmi-footer-accent',
+	);
+	foreach ( $var_map as $attr => $var ) {
+		if ( ! empty( $attributes[ $attr ] ) ) {
+			$style_vars[] = $var . ': ' . $attributes[ $attr ];
+		}
+	}
+	$footer_style = $style_vars ? ' style="' . esc_attr( implode( '; ', $style_vars ) ) . '"' : '';
+
+	// Build conditional classes.
+	$classes = array( 'site-footer' );
+	if ( ! empty( $attributes['borderTop'] ) ) {
+		$classes[] = 'has-border-top';
+	}
+	$footer_class = esc_attr( implode( ' ', $classes ) );
+
+	// Brand column (footer chrome, not part of the nav menu).
+	$logo_mark   = isset( $attributes['logoMark'] ) ? $attributes['logoMark'] : 'RC';
+	$logo_text   = isset( $attributes['logoText'] ) ? $attributes['logoText'] : 'RCMI';
+	$footer_desc = isset( $attributes['footerText'] ) ? $attributes['footerText'] : 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.';
+	$brand  = '<div class="footer-brand">';
+	$brand .= '<a href="' . esc_url( $home_url ) . '" class="nav-logo"><span class="mark">' . esc_html( $logo_mark ) . '</span>' . esc_html( $logo_text ) . '</a>';
+	$brand .= '<p>' . esc_html( $footer_desc ) . '</p>';
+	$brand .= '</div>';
+
+	// Footer link columns (.footer-col per top-level menu item).
+	$columns = wp_nav_menu( array(
+		'theme_location' => 'footer',
+		'walker'         => new RCMI_Footer_Walker(),
+		'container'      => false,
+		'items_wrap'     => '%3$s',
+		'fallback_cb'    => 'rcmi_default_footer_nav_fallback',
+		'echo'           => false,
+	) );
+
+	// Footer bottom bar (static chrome).
+	$bottom  = '<div class="footer-bottom">';
+	$bottom .= '<span>&copy; ' . gmdate( 'Y' ) . ' Research Capacity &amp; Mentoring Institute.</span>';
+	$bottom .= '<span>Visual identity follows the University of Houston Brand Style Guide.</span>';
+	$bottom .= '</div>';
+
+	$output  = '<footer class="' . $footer_class . '"' . $footer_style . '>';
+	$output .= '<div class="wrap">';
+	$output .= '<div class="footer-top">' . $brand . $columns . '</div>';
+	$output .= $bottom;
+	$output .= '</div>';
+	$output .= '</footer>';
+
+	return $output;
+}
+
+/**
+ * Fallback for the footer wp_nav_menu() call when no menu is assigned to
+ * "footer": renders the default .footer-col columns from
+ * rcmi_default_footer_menu_items().
+ *
+ * @param array $args wp_nav_menu() arguments.
+ * @return string
+ */
+function rcmi_default_footer_nav_fallback( $args ) {
+	$items = rcmi_default_footer_menu_items();
+	$out   = '';
+	foreach ( $items as $item ) {
+		$out .= '<div class="footer-col">';
+		if ( ! empty( $item['children'] ) ) {
+			$out .= '<h4>' . esc_html( $item['title'] ) . '</h4><ul>';
+			foreach ( $item['children'] as $child ) {
+				$out .= '<li><a href="' . esc_url( $child['url'] ) . '">' . esc_html( $child['title'] ) . '</a></li>';
+			}
+			$out .= '</ul>';
+		} else {
+			$out .= '<h4><a href="' . esc_url( $item['url'] ) . '">' . esc_html( $item['title'] ) . '</a></h4>';
+		}
+		$out .= '</div>';
+	}
+	return $out;
+}
+
+/**
+ * Auto-create the "Footer Menu" with the default items and assign it to the
+ * "footer" location on theme activation. Runs once; skips if a menu is
+ * already assigned. Merges with existing locations so the primary menu
+ * assignment is preserved.
+ */
+function rcmi_auto_create_footer_menu() {
+	$locations = get_nav_menu_locations();
+	if ( ! empty( $locations['footer'] ) ) {
+		$existing = wp_get_nav_menu_object( $locations['footer'] );
+		if ( $existing && ! is_wp_error( $existing ) ) {
+			return; // A menu is already assigned to footer.
+		}
+	}
+
+	$menu     = wp_get_nav_menu_object( 'Footer Menu' );
+	$menu_id  = $menu ? $menu->term_id : wp_create_nav_menu( 'Footer Menu' );
+
+	// Don't duplicate items if the menu already has some.
+	$existing_items = wp_get_nav_menu_items( $menu_id );
+	if ( empty( $existing_items ) ) {
+		foreach ( rcmi_default_footer_menu_items() as $item ) {
+			$parent_id = wp_update_nav_menu_item( $menu_id, 0, array(
+				'menu-item-title'  => $item['title'],
+				'menu-item-url'    => $item['url'],
+				'menu-item-status' => 'publish',
+			) );
+			if ( ! empty( $item['children'] ) ) {
+				foreach ( $item['children'] as $child ) {
+					wp_update_nav_menu_item( $menu_id, 0, array(
+						'menu-item-title'     => $child['title'],
+						'menu-item-url'       => $child['url'],
+						'menu-item-status'    => 'publish',
+						'menu-item-parent-id' => $parent_id,
+					) );
+				}
+			}
+		}
+	}
+
+	// Merge with existing locations so the primary assignment is preserved.
+	$locations['footer'] = (int) $menu_id;
+	set_theme_mod( 'nav_menu_locations', $locations );
+}
+add_action( 'after_switch_theme', 'rcmi_auto_create_footer_menu' );
 
 // ============================================================================
 // GitHub-based auto-update system (commit-based, no tags required)

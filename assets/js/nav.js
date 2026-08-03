@@ -1,6 +1,33 @@
 (function () {
   'use strict';
 
+  // ---------------------------------------------------------------
+  // Fixed header offset — measure header height and push main
+  // content down so it isn't hidden behind the fixed header.
+  // The header is position:fixed (not sticky) because it lives
+  // inside a .wp-block-template-part wrapper that is too short
+  // for position:sticky to work.
+  // ---------------------------------------------------------------
+  function adjustHeaderOffset() {
+    var header = document.querySelector('.site-header');
+    var main = document.querySelector('.site-main');
+    if (!header || !main) return;
+    if (header.classList.contains('not-sticky')) {
+      document.body.classList.remove('has-fixed-header');
+      main.style.removeProperty('--rcmi-header-offset');
+      return;
+    }
+    document.body.classList.add('has-fixed-header');
+    main.style.setProperty('--rcmi-header-offset', header.offsetHeight + 'px');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', adjustHeaderOffset);
+  } else {
+    adjustHeaderOffset();
+  }
+  window.addEventListener('load', adjustHeaderOffset);
+  window.addEventListener('resize', adjustHeaderOffset);
+
   // Mobile nav toggle.
   var btn = document.querySelector('.nav-toggle');
   var panel = document.getElementById('mobile-nav');

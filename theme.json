@@ -24,7 +24,7 @@
 				{ "color": "#005950", "name": "Forest", "slug": "uh-forest" },
 				{ "color": "#F4F5F5", "name": "Background Alt", "slug": "bg-alt" },
 				{ "color": "#101112", "name": "Background Dark", "slug": "bg-dark" },
-				{ "color": "#DEE1E2", "name": "Border", "slug": "border" }
+				{ "color": "#DEE1E2", "name": "Border", "slug": "uh-border" }
 			]
 		},
 		"layout": {

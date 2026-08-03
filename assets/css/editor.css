@@ -235,10 +235,10 @@
   position: relative; overflow: hidden; padding: 112px 0 72px;
   background: #fff url('../images/iam.png') no-repeat center / cover;
 }
-.editor-styles-wrapper .rcmi-role-selector-editor.collaborating-section::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(125deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.85) 40%, rgba(255,255,255,0) 100%);
-}
+/* Scrim gradient is rendered by the block's edit function via
+   .rcmi-section-scrim div with inline styles from the gradient
+   picker — no hard-coded ::before needed. */
+.editor-styles-wrapper .rcmi-role-selector-editor .rcmi-section-scrim { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .editor-styles-wrapper .rcmi-role-selector-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
 .editor-styles-wrapper .rcmi-role-selector-editor .section-head { display: block; max-width: 520px; margin-bottom: 64px; }
 .editor-styles-wrapper .rcmi-role-selector-editor .eyebrow {

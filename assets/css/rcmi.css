@@ -579,11 +579,8 @@ hr.rule{
    regardless of how many cards each tab has. */
 .tab-panel.is-active[style*="height:"]{ display:flex; flex-direction:column; justify-content:flex-start; }
 .tab-panel.is-active[style*="height:"] > .wrap{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; }
-.tab-panel::before{
-  content:""; position:absolute; inset:0; z-index:0;
-  background:linear-gradient(90deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);
-}
-/* Editable scrim div (overrides ::before when present) */
+/* Editable scrim div — gradient background is controlled by the
+   rcmi/impact-strip-block attributes (per-tab gradient picker). */
 .rcmi-tab-scrim{ position:absolute; inset:0; z-index:0; pointer-events:none; }
 #develop.is-active{ background-image:url('../images/step1.png'); }
 #build.is-active{ background-image:url('../images/step2.png'); }
@@ -620,7 +617,6 @@ hr.rule{
 .has-text-color .tab-panel .btn{ color: #fff; }
 @media (max-width: 900px){
   .tab-panel{ padding-top:28px; }
-  .tab-panel::before{ background:linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%); }
   .tab-panel .section-head > div, .tab-panel .section-note{ width:100%; max-width:520px; }
   .tab-panel .section-head h2{ font-size:clamp(2.5rem, 11vw, 3.5rem); }
   .tab-panel .section-note{ margin-top:16px; }
@@ -841,10 +837,8 @@ hr.rule{
   position:relative; overflow:hidden; padding:112px 0 72px;
   background:#fff url('../images/iam.png') no-repeat center / cover;
 }
-.collaborating-section::before{
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(125deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.85) 40%, rgba(255,255,255,0) 100%);
-}
+/* Editable scrim div — gradient background is controlled by the
+   rcmi/role-selector-block attributes (gradient picker). */
 .rcmi-section-scrim{ position:absolute; inset:0; z-index:0; pointer-events:none; }
 .collaborating-section .wrap{ position:relative; z-index:1; }
 .collaborating-section .section-head{ display:block; max-width:520px; margin-bottom:64px; }
@@ -890,7 +884,6 @@ hr.rule{
 .collaborating-heart{ display:grid; place-items:center; width:40px; height:40px; border-radius:50%; background:var(--red); color:#fff; font-size:1.4rem; }
 @media (max-width: 900px){
   .collaborating-section{ padding:80px 0 56px; background-size:cover; background-position:center; }
-  .collaborating-section::before{ background:linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,.85) 40%, rgba(255,255,255,0) 100%); }
   .collaborating-section .section-head{ margin-bottom:40px; }
   .collaborating-section .section-note{ font-size:1.05rem; }
   .role-card{ min-height:200px; padding-left:112px; padding-right:20px; }

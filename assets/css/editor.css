@@ -400,7 +400,18 @@
   border: 1px solid var(--red); border-radius: 999px; background: var(--red); color: #fff; text-decoration: none;
 }
 
-/* === InnerBlocks editor styles (core blocks inside RCMI blocks) === */
+/* Hide "Browse all" button in the quick inserter popup.
+   This button bypasses allowedBlocks restrictions and shows all
+   blocks, which confuses editors who should only insert allowed
+   blocks inside RCMI section blocks. */
+.editor-styles-wrapper .block-editor-inserter__quick-inserter-expand,
+.block-editor-inserter__quick-inserter .block-editor-inserter__quick-inserter-expand {
+  display: none !important;
+}
+/* Remove the "has-expand" padding that was reserving space for the button */
+.block-editor-inserter__quick-inserter.has-expand .block-editor-inserter__quick-inserter-results {
+  padding-bottom: 0 !important;
+}
 
 /* Hero InnerBlocks: core/buttons + core/button — only layout/typography.
    Visual properties (bg, color, border-radius) come from the block's

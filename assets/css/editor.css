@@ -402,17 +402,25 @@
 
 /* === InnerBlocks editor styles (core blocks inside RCMI blocks) === */
 
-/* Hero InnerBlocks: core/buttons + core/button */
+/* Hero InnerBlocks: core/buttons + core/button — only layout/typography.
+   Visual properties (bg, color, border-radius) come from the block's
+   style attributes so the editor's controls work without CSS overrides.
+   Low-specificity defaults below provide the RCMI look for buttons
+   that don't have inline styles yet. */
 .editor-styles-wrapper .rcmi-parallax-editor .wp-block-buttons {
   display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .wp-block-button__link {
   display: inline-block; padding: 14px 26px; font-size: 0.92rem;
-  border: 1px solid var(--red); border-radius: 999px; background: var(--red);
-  color: #fff; text-decoration: none; cursor: pointer;
+  font-family: var(--font-body); font-weight: 700; line-height: 1;
+  text-decoration: none; cursor: pointer; transition: filter .15s;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .wp-block-button__link:hover {
-  background: #a10d26; border-color: #a10d26;
+  filter: brightness(0.88);
+}
+.editor-styles-wrapper .wp-block-button.btn-primary .wp-block-button__link,
+.editor-styles-wrapper .wp-block-button .btn-primary.wp-block-button__link {
+  background: var(--red); border: 1px solid var(--red); color: #fff; border-radius: 999px;
 }
 
 /* Quote InnerBlocks: core/paragraph.cite replaces <cite> */
@@ -437,16 +445,19 @@
   grid-column: 8/-1; display: flex; gap: 16px; justify-content: flex-end; flex-wrap: wrap;
 }
 .editor-styles-wrapper .rcmi-cta-editor .wp-block-button__link {
-  display: inline-block; padding: 14px 26px; font-size: 0.92rem; border-radius: 999px;
-  border: 1px solid; text-decoration: none; cursor: pointer;
+  display: inline-block; padding: 14px 26px; font-size: 0.92rem;
+  font-family: var(--font-body); font-weight: 700; line-height: 1;
+  text-decoration: none; cursor: pointer; transition: filter .15s;
+}
+.editor-styles-wrapper .rcmi-cta-editor .wp-block-button__link:hover {
+  filter: brightness(0.88);
 }
 .editor-styles-wrapper .rcmi-cta-editor .wp-block-button.btn-outline .wp-block-button__link {
-  background: transparent; border-color: #fff; color: #fff;
+  background: transparent; border: 1px solid #fff; color: #fff; border-radius: 999px;
 }
 .editor-styles-wrapper .rcmi-cta-editor .wp-block-button.btn-primary .wp-block-button__link {
-  background: #fff; border-color: #fff; color: var(--red);
+  background: #fff; border: 1px solid #fff; color: var(--red); border-radius: 999px;
 }
-.editor-styles-wrapper .has-text-color.rcmi-cta-editor .wp-block-button__link { color: #fff; }
 
 /* Responsive: stack CTA columns on narrow editor */
 @media (max-width: 900px) {

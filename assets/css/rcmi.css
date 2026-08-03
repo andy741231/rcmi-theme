@@ -974,7 +974,12 @@ hr.rule{
   margin-top: 16px;
 }
 
-/* core/button link replaces .btn .btn-primary */
+/* core/button link — only set properties that core/button doesn't
+   control (font, padding, transition). Visual properties (background,
+   color, border-radius, border) are set via the block's style attributes
+   so the editor's controls can change them without CSS fighting back.
+   Low-specificity defaults below provide the RCMI look for buttons
+   that don't have inline styles yet; inline styles always override. */
 .rcmi-parallax-copy .wp-block-button__link,
 .hero-copy .wp-block-button__link {
   display: inline-block;
@@ -984,18 +989,21 @@ hr.rule{
   font-weight: 700;
   line-height: 1;
   text-decoration: none;
-  border-radius: 999px;
-  border: 1px solid var(--red);
-  background: var(--red);
-  color: #fff;
   cursor: pointer;
-  transition: background .15s, border-color .15s, color .15s;
+  transition: filter .15s, background .15s, border-color .15s, color .15s;
 }
+/* Hover: use filter so it works regardless of the button's custom color */
 .rcmi-parallax-copy .wp-block-button__link:hover,
 .hero-copy .wp-block-button__link:hover {
-  background: #a10d26;
-  border-color: #a10d26;
+  filter: brightness(0.88);
+}
+/* Default visual styles — low specificity so inline styles override */
+.wp-block-button.btn-primary .wp-block-button__link,
+.wp-block-button .btn-primary.wp-block-button__link {
+  background: var(--red);
+  border: 1px solid var(--red);
   color: #fff;
+  border-radius: 999px;
 }
 
 /* Alignment-aware button positioning */
@@ -1046,7 +1054,8 @@ hr.rule{
   flex-wrap: wrap;
 }
 
-/* core/button links inside CTA band */
+/* core/button links inside CTA band — only layout/typography, not
+   visual properties (those come from the block's style attributes). */
 .cta-band .wp-block-button__link {
   display: inline-block;
   padding: 12px 24px;
@@ -1055,30 +1064,24 @@ hr.rule{
   font-size: .92rem;
   line-height: 1;
   text-decoration: none;
-  border-radius: 999px;
-  border: 1px solid currentColor;
   cursor: pointer;
-  transition: background .15s, border-color .15s, color .15s;
+  transition: filter .15s, background .15s, border-color .15s, color .15s;
 }
-.cta-band .wp-block-button.btn-primary .wp-block-button__link,
-.cta-band .wp-block-button .btn-primary.wp-block-button__link {
-  background: var(--red);
-  border-color: var(--red);
-  color: #fff;
+.cta-band .wp-block-button__link:hover {
+  filter: brightness(0.88);
 }
-.cta-band .wp-block-button.btn-primary .wp-block-button__link:hover {
-  background: #a10d26;
-  border-color: #a10d26;
-}
-.cta-band .wp-block-button.btn-outline .wp-block-button__link,
-.cta-band .wp-block-button .btn-outline.wp-block-button__link {
+/* Default visual styles — low specificity so inline styles override */
+.cta-band .wp-block-button.btn-outline .wp-block-button__link {
   background: transparent;
-  border-color: #fff;
+  border: 1px solid #fff;
   color: #fff;
+  border-radius: 999px;
 }
-.cta-band .wp-block-button.btn-outline .wp-block-button__link:hover {
+.cta-band .wp-block-button.btn-primary .wp-block-button__link {
   background: #fff;
-  color: var(--color-primary);
+  border: 1px solid #fff;
+  color: var(--red);
+  border-radius: 999px;
 }
 
 /* Text color override for CTA band */

@@ -955,3 +955,143 @@ hr.rule{
   margin: 0 auto;
   padding: 0 var(--space-3);
 }
+
+/* ============================================================
+ * InnerBlocks styling — maps core block classes onto the
+ * existing RCMI component styles. These supplement (not
+ * replace) the legacy selectors so both old attribute-based
+ * instances and new InnerBlocks instances render correctly.
+ * ============================================================ */
+
+/* --- Hero (rcmi/parallax) InnerBlocks --- */
+
+/* core/buttons container replaces .hero-actions */
+.rcmi-parallax-copy .wp-block-buttons,
+.hero-copy .wp-block-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+/* core/button link replaces .btn .btn-primary */
+.rcmi-parallax-copy .wp-block-button__link,
+.hero-copy .wp-block-button__link {
+  display: inline-block;
+  padding: 14px 26px;
+  font-size: .92rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1px solid var(--red);
+  background: var(--red);
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.rcmi-parallax-copy .wp-block-button__link:hover,
+.hero-copy .wp-block-button__link:hover {
+  background: #a10d26;
+  border-color: #a10d26;
+  color: #fff;
+}
+
+/* Alignment-aware button positioning */
+.rcmi-align-center .rcmi-parallax-copy .wp-block-buttons,
+.rcmi-align-center .hero-copy .wp-block-buttons { justify-content: center; }
+.rcmi-align-right .rcmi-parallax-copy .wp-block-buttons,
+.rcmi-align-right .hero-copy .wp-block-buttons { justify-content: flex-end; }
+
+/* Text color override: when the block has a text color set,
+   buttons keep their own colors (white on red). */
+.has-text-color .rcmi-parallax-copy .wp-block-button__link,
+.has-text-color .hero-copy .wp-block-button__link { color: #fff; }
+
+/* --- Quote block (rcmi/quote-block) InnerBlocks --- */
+
+/* core/paragraph with className "cite" replaces <cite> element */
+.quote-body .wp-block-paragraph.cite,
+.quote-body p.cite {
+  display: block;
+  margin-top: var(--space-2);
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-fg);
+}
+.has-text-color .quote-body .wp-block-paragraph.cite,
+.has-text-color .quote-body p.cite { color: inherit; }
+
+/* --- CTA band (rcmi/cta-band) InnerBlocks --- */
+
+/* core/columns replaces the 12-col grid. Make the columns
+   container behave like the old .cta-band grid.
+   Use !important to override WP's is-layout-flex (display:flex). */
+.cta-band .wp-block-columns.is-layout-flex,
+.cta-band .wp-block-columns {
+  display: grid !important;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--grid-gap);
+  align-items: center;
+}
+.cta-band .wp-block-column.cta-copy { grid-column: 1 / 8; }
+.cta-band .wp-block-column.cta-actions {
+  grid-column: 8 / -1;
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* core/button links inside CTA band */
+.cta-band .wp-block-button__link {
+  display: inline-block;
+  padding: 12px 24px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .92rem;
+  line-height: 1;
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.cta-band .wp-block-button.btn-primary .wp-block-button__link,
+.cta-band .wp-block-button .btn-primary.wp-block-button__link {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+.cta-band .wp-block-button.btn-primary .wp-block-button__link:hover {
+  background: #a10d26;
+  border-color: #a10d26;
+}
+.cta-band .wp-block-button.btn-outline .wp-block-button__link,
+.cta-band .wp-block-button .btn-outline.wp-block-button__link {
+  background: transparent;
+  border-color: #fff;
+  color: #fff;
+}
+.cta-band .wp-block-button.btn-outline .wp-block-button__link:hover {
+  background: #fff;
+  color: var(--color-primary);
+}
+
+/* Text color override for CTA band */
+.has-text-color .cta-band .wp-block-column.cta-copy h2,
+.has-text-color .cta-band .wp-block-column.cta-copy p { color: inherit; }
+.has-text-color .cta-band .wp-block-button__link { color: #fff; }
+
+/* --- Responsive: stack CTA columns on mobile --- */
+@media (max-width: 900px) {
+  .cta-band .wp-block-columns { grid-template-columns: 1fr; }
+  .cta-band .wp-block-column.cta-copy,
+  .cta-band .wp-block-column.cta-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}

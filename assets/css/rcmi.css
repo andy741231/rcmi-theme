@@ -593,9 +593,15 @@ hr.rule{
 }
 .tab-panel .section-head > div{ width:42%; padding-top:20px; }
 .tab-panel .section-head h2{
-  display:flex; flex-direction:column; gap:0; margin:12px 0 14px;
+  display:block; margin:12px 0 14px;
   font-size:clamp(2rem, 4vw, 3.5rem); line-height:.95;
 }
+/* span and strong act as line breaks (block-level) so multi-part
+   headings stack vertically. mark stays inline so text-color formats
+   don't create unwanted line breaks. */
+.tab-panel .section-head h2 span,
+.tab-panel .section-head h2 strong{ display:block; }
+.tab-panel .section-head h2 mark{ display:inline; }
 .tab-panel .section-head h2 span{ color:var(--color-fg); }
 .tab-panel .section-head h2 strong{ color:var(--red); font-family:inherit; font-weight:400; }
 .tab-panel .section-note{ width:38%; font-size:.9rem; line-height:1.45; }

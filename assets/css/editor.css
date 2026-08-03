@@ -297,6 +297,11 @@
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head h2 {
   font-size: clamp(2rem, 4vw, 3.5rem); line-height: 0.95; margin: 12px 0 14px;
 }
+/* span and strong stack as block lines; mark stays inline so
+   text-color formats don't create unwanted line breaks */
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head h2 span,
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head h2 strong { display: block; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head h2 mark { display: inline; }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-note { width: 38%; font-size: 0.9rem; }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .card {

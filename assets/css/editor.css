@@ -7,6 +7,14 @@
   line-height: 1.6;
   color: #111213;
 }
+/* Keep SVG/img icons inside buttons inline so they sit next to text */
+.editor-styles-wrapper .wp-block-button__link img,
+.editor-styles-wrapper .wp-block-spectra-button img,
+.editor-styles-wrapper .spectra-button__icon img,
+.editor-styles-wrapper .spectra-button__icon svg{ display: inline-block; }
+/* Line-height inline format: needs display:block so line-height
+   actually affects the line box, not just the inline content box. */
+.editor-styles-wrapper .has-inline-line-height{ display: block; }
 .editor-styles-wrapper mark.has-inline-color{ background-color: transparent; }
 .editor-styles-wrapper mark.has-inline-highlight{ color: inherit; }
 .editor-styles-wrapper .has-display-font{ font-family: 'League Gothic', 'Arial Narrow', sans-serif !important; text-transform: uppercase; letter-spacing: 0.01em; }
@@ -416,7 +424,7 @@
   display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .wp-block-button__link {
-  display: inline-block; padding: 14px 26px; font-size: 0.92rem;
+  display: inline-flex; align-items: center; padding: 14px 26px; font-size: 0.92rem;
   font-family: var(--font-body); font-weight: 700; line-height: 1;
   text-decoration: none; cursor: pointer; transition: filter .15s;
 }
@@ -450,7 +458,7 @@
   grid-column: 8/-1; display: flex; gap: 16px; justify-content: flex-end; flex-wrap: wrap;
 }
 .editor-styles-wrapper .rcmi-cta-editor .wp-block-button__link {
-  display: inline-block; padding: 14px 26px; font-size: 0.92rem;
+  display: inline-flex; align-items: center; padding: 14px 26px; font-size: 0.92rem;
   font-family: var(--font-body); font-weight: 700; line-height: 1;
   text-decoration: none; cursor: pointer; transition: filter .15s;
 }

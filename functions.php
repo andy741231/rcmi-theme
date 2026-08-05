@@ -911,12 +911,6 @@ function rcmi_theme_post_install_rename( $response, $hook_extra, $result ) {
 
 	delete_transient( 'rcmi_theme_github_commit' );
 
-	// Clear PHP opcache so the new PHP files are actually loaded.
-	// On Windows/IIS, overwritten files don't automatically invalidate opcache.
-	if ( function_exists( 'opcache_reset' ) ) {
-		opcache_reset();
-	}
-
 	return $result;
 }
 add_filter( 'upgrader_post_install', 'rcmi_theme_post_install_rename', 10, 3 );

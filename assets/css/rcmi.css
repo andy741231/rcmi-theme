@@ -51,7 +51,7 @@ mark.has-inline-color{ background-color: transparent; }
 mark.has-inline-highlight{ color: inherit; }
 .has-display-font{ font-family: 'League Gothic', 'Arial Narrow', sans-serif !important; text-transform: uppercase; letter-spacing: 0.01em; }
 .has-body-font{ font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif !important; }
-.has-serif-font{ font-family: 'Crimson Pro', Georgia, serif !important; }html{ scroll-behavior: smooth; scroll-padding-top: 248px; }
+.has-serif-font{ font-family: 'Crimson Pro', Georgia, serif !important; }html{ scroll-behavior: smooth; scroll-padding-top: 248px; overflow-x: hidden; }
 body{
   margin:0;
   font-family: var(--font-body);
@@ -201,8 +201,12 @@ hr.rule{
   backdrop-filter: blur(6px);
   border-bottom: 1px solid rgba(0,0,0,0.15);
 }
-/* Push fixed header below the WordPress admin bar when logged in. */
-.admin-bar .site-header{ top: var(--wp-admin--admin-bar--height, 0px); }
+/* Push fixed header below the WordPress admin bar when logged in.
+   Only applies to the fixed (sticky) header — the not-sticky header
+   is in normal flow where WP core's html{margin-top:32px} already
+   offsets it below the admin bar, so an extra top offset would
+   create a blank gap. */
+.admin-bar .site-header:not(.not-sticky){ top: var(--wp-admin--admin-bar--height, 0px); }
 .site-header.is-transparent{
   background: color-mix(in srgb, var(--rcmi-header-bg, var(--color-primary)) 85%, transparent);
   backdrop-filter: blur(12px);

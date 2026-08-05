@@ -36,7 +36,7 @@
 .editor-styles-wrapper .wp-block-group.wrap {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--container-inline-padding);
 }
 
 /* === RCMI Hero block editor styles === */
@@ -76,7 +76,7 @@
   max-width: var(--container-max);
   margin-left: auto;
   margin-right: auto;
-  padding: 30px var(--space-3);
+  padding: 30px var(--container-inline-padding);
   box-sizing: border-box;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .hero-grid {
@@ -137,6 +137,60 @@
   cursor: pointer;
 }
 
+@media (max-width: 900px) {
+  .editor-styles-wrapper .wp-block-rcmi-parallax.rcmi-parallax-editor.hero,
+  .editor-styles-wrapper .rcmi-parallax-editor {
+    min-height: 0 !important;
+    align-items: flex-start;
+    padding-bottom: 0;
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-inner,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-inner {
+    padding: 72px var(--container-inline-padding) 96px;
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy {
+    grid-column: 1;
+    width: 100%;
+    max-width: 100%;
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
+    max-width: 100%;
+    font-size: clamp(2.15rem, 9vw, 3.5rem);
+    overflow-wrap: anywhere;
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy .lede,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .lede {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-inner,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-inner {
+    padding: 56px var(--container-inline-padding) 72px;
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
+    font-size: clamp(2rem, 8.5vw, 2.8rem);
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy .lede,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .lede {
+    font-size: 1rem;
+  }
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-actions .btn,
+  .editor-styles-wrapper .rcmi-parallax-editor .wp-block-button__link {
+    max-width: 100%;
+    padding: 12px 20px;
+    font-size: .85rem;
+    white-space: normal;
+  }
+}
+
 /* === Image picker sidebar styles === */
 .rcmi-image-picker-btn {
   display: block;
@@ -151,6 +205,32 @@
   border-radius: 4px;
   border: 1px solid #ddd;
   margin-bottom: 8px;
+}
+
+/* === Layer tab styles (Desktop/Mobile tabs in inspector) === */
+.rcmi-layer-tabs .components-tab-panel__tabs {
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.rcmi-layer-tabs .components-tab-panel__tabs .components-button {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: #757575;
+}
+.rcmi-layer-tabs .components-tab-panel__tabs .components-button.is-active,
+.rcmi-layer-tabs .components-tab-panel__tabs .components-button[aria-selected="true"] {
+  color: #1e1e1e;
+  border-bottom-color: var(--wp-admin-theme-color, #007cba);
+}
+.rcmi-layer-tabs .components-tab-panel__tabs .components-button:hover:not(.is-active) {
+  color: #1e1e1e;
+}
+.rcmi-layer-tab-content {
+  padding-top: 4px;
 }
 
 /* === Full-bleed helper for all RCMI section blocks === */
@@ -170,7 +250,7 @@
 .editor-styles-wrapper .rcmi-quote-editor.bg-alt { background: #F4F5F5; padding: 96px 0; }
 .editor-styles-wrapper .rcmi-quote-editor .quote-block {
   display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: center;
-  max-width: 1280px; margin: 0 auto; padding: 0 24px;
+  max-width: 1280px; margin: 0 auto; padding: 0 var(--container-inline-padding);
 }
 .editor-styles-wrapper .rcmi-quote-editor .quote-mark {
   grid-column: 1/3; font-family: var(--font-display); font-size: 6rem; color: var(--red); line-height: 1;
@@ -194,7 +274,7 @@
 
 /* === RCMI CTA Band editor styles === */
 .editor-styles-wrapper .rcmi-cta-editor.bg-primary { background: #C8102E; color: #fff; padding: 80px 0; }
-.editor-styles-wrapper .rcmi-cta-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.editor-styles-wrapper .rcmi-cta-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--container-inline-padding); }
 .editor-styles-wrapper .rcmi-cta-editor .cta-band {
   display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: center;
 }
@@ -216,7 +296,7 @@
 
 /* === RCMI Impact Stats editor styles === */
 .editor-styles-wrapper .rcmi-impact-stats-editor { padding: 48px 0; }
-.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stats-wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.editor-styles-wrapper .rcmi-impact-stats-editor .impact-stats-wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--container-inline-padding); }
 .editor-styles-wrapper .rcmi-impact-stats-editor .impact-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding: 48px 24px 40px; background: #fff;
 }
@@ -247,7 +327,7 @@
    .rcmi-section-scrim div with inline styles from the gradient
    picker — no hard-coded ::before needed. */
 .editor-styles-wrapper .rcmi-role-selector-editor .rcmi-section-scrim { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.editor-styles-wrapper .rcmi-role-selector-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+.editor-styles-wrapper .rcmi-role-selector-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--container-inline-padding); position: relative; z-index: 1; }
 .editor-styles-wrapper .rcmi-role-selector-editor .section-head { display: block; max-width: 520px; margin-bottom: 64px; }
 .editor-styles-wrapper .rcmi-role-selector-editor .eyebrow {
   display: block; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-fg);
@@ -299,7 +379,7 @@
   font-size: 0.92rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
 }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel { padding: 40px 0 48px; }
-.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--container-inline-padding); }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head { display: block; margin-bottom: 0; }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head > div { width: 42%; padding-top: 20px; }
 .editor-styles-wrapper .rcmi-impact-strip-block-editor .tab-panel .section-head h2 {
@@ -355,13 +435,22 @@
 }
 .editor-styles-wrapper .rcmi-parallax-layer-preview {
   position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  top: 50%;
+  left: 50%;
+  object-fit: cover;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.editor-styles-wrapper .rcmi-parallax-layer-preview.is-empty {
+  /* Placeholder when no image is set. */
+  inset: 0;
+  width: auto;
+  height: auto;
+  transform: none;
+  top: 0;
+  left: 0;
+  background: #f8f5ee;
 }
 .editor-styles-wrapper .rcmi-parallax-layer-preview:nth-child(2) {
   /* Middle layer preview shown at reduced opacity so layers are distinguishable. */
@@ -384,7 +473,7 @@
   max-width: var(--container-max);
   margin-left: auto;
   margin-right: auto;
-  padding: 40px var(--space-3);
+  padding: 40px var(--container-inline-padding);
   box-sizing: border-box;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy { max-width: 570px; }

@@ -35,6 +35,7 @@
   --space-7: 96px;
   --space-8: 144px;
   --container-max: 1280px;
+  --container-inline-padding: var(--space-3);
 
   /* --- Type --- */
   --font-display: 'League Gothic', 'Arial Narrow', sans-serif;
@@ -116,7 +117,15 @@ p{ margin: 0 0 1em; }
 .wrap{
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 var(--space-3);
+  padding: 0 var(--container-inline-padding);
+}
+@media (max-width: 767px){
+  :root{
+    --container-inline-padding: var(--space-4);
+  }
+  .wrap{
+    padding: 0 var(--container-inline-padding);
+  }
 }
 .grid{
   display: grid;
@@ -201,19 +210,29 @@ hr.rule{
   backdrop-filter: blur(6px);
   border-bottom: 1px solid rgba(0,0,0,0.15);
 }
-/* Push fixed header below the WordPress admin bar when logged in. */
-.admin-bar .site-header{ top: var(--wp-admin--admin-bar--height, 0px); }
+/* Push fixed header below the WordPress admin bar when logged in.
+   Only applies to the fixed (sticky) header — the not-sticky header
+   is in normal flow where WP core's html{margin-top:32px} already
+   offsets it below the admin bar, so an extra top offset would
+   create a blank gap. */
+.admin-bar .site-header:not(.not-sticky){ top: var(--wp-admin--admin-bar--height, 0px); }
 .site-header.is-transparent{
   background: color-mix(in srgb, var(--rcmi-header-bg, var(--color-primary)) 85%, transparent);
   backdrop-filter: blur(12px);
 }
-.site-header.not-sticky{ position: relative; }
+.site-header.not-sticky{ position: relative; top: 0; }
 /* When header is fixed, push main content down to compensate.
    The exact offset is set via JS (nav.js) based on header height. */
 body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .nav{
   display:flex; align-items:center; justify-content:space-between;
-  padding: 8px 0;
+  padding: 8px var(--container-inline-padding);
+}
+@media (max-width: 767px){
+  .nav{
+    padding-left: var(--container-inline-padding);
+    padding-right: var(--container-inline-padding);
+  }
 }
 .nav-logo{
   display:flex; align-items:center; gap:10px;
@@ -297,7 +316,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .mobile-nav{
   position:fixed; inset: 65px 0 0 0; z-index:99;
   background: var(--rcmi-header-bg, var(--color-primary)); overflow-y:auto;
-  padding: var(--space-3) var(--space-3) var(--space-7);
+  padding: var(--space-3) var(--container-inline-padding) var(--space-7);
   display:flex; flex-direction:column; gap:2px;
   opacity:0; visibility:hidden; transform: translateY(-8px);
   transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
@@ -373,7 +392,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   position:relative; z-index:2;
   width:100%; max-width:var(--container-max);
   margin-left:auto; margin-right:auto;
-  padding:30px var(--space-3);
+  padding:30px var(--container-inline-padding);
   box-sizing:border-box;
 }
 .hero-grid{ display:grid; grid-template-columns: repeat(12,1fr); gap: var(--grid-gap); align-items:center; }
@@ -411,14 +430,30 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   color: var(--color-fg);
   background: #f8f5ee;
 }
+/* Parallax layers are <img> elements with inline styles for position,
+   scale, object-fit, and z-index. The parallax JS adds translate3d
+   on top of the centering transform (translate(-50%,-50%)). We only
+   set the base display model here — everything else is inline. */
 .rcmi-parallax-layer{
-  position: absolute;
-  top: -50%; bottom: -50%; left: 0; right: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  will-change: transform;
-  pointer-events: none;
+  display: block;
+  margin: 0;
+}
+/* Mobile first-paint: apply per-layer mobile scale, position, and
+   object-fit from CSS custom properties (set inline by PHP) before
+   frontend.js runs. This prevents the initial "jump" where JS would
+   change desktop values to mobile values after page load.
+   Once JS initializes it adds the .rcmi-parallax-js class to the
+   section, which disables this rule so JS can manage responsive
+   behavior freely. */
+@media (max-width: 767px){
+  .rcmi-parallax:not(.rcmi-parallax-js) .rcmi-parallax-layer{
+    width: var(--rcmi-mobile-scale, 100%) !important;
+    height: var(--rcmi-mobile-scale, 100%) !important;
+    object-fit: var(--rcmi-mobile-object-fit, cover) !important;
+    object-position: var(--rcmi-mobile-object-position, 50% 50%) !important;
+    --pos-x: var(--rcmi-mobile-pos-x, 0%) !important;
+    --pos-y: var(--rcmi-mobile-pos-y, 0%) !important;
+  }
 }
 .rcmi-parallax-layer-background{ z-index: 0; }
 .rcmi-parallax-layer-middle{ z-index: 1; }
@@ -435,28 +470,21 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   position: relative; z-index: 4;
   width: 100%; max-width: var(--container-max);
   margin-left: auto; margin-right: auto;
-  padding: 40px var(--space-3);
+  padding: 40px var(--container-inline-padding);
   box-sizing: border-box;
 }
 .rcmi-parallax-copy{ max-width: 570px; }
-/* Content alignment for hero/parallax block */
+/* Content alignment for hero/parallax block.
+   Only changes the horizontal position of the content block —
+   text alignment within is controlled by the individual blocks
+   (heading, paragraph, buttons) inside InnerBlocks. */
 .rcmi-align-center .hero-copy{ grid-column: 1 / -1; }
 .rcmi-align-center .rcmi-parallax-copy,
-.rcmi-align-center .hero-copy{ max-width: 760px; margin-left: auto; margin-right: auto; text-align: center; }
-.rcmi-align-center .hero-copy .eyebrow::before{ display: none; }
-.rcmi-align-center .hero-actions,
-.rcmi-align-center .rcmi-parallax-copy .hero-actions{ justify-content: center; }
-.rcmi-align-center .hero-copy .lede,
-.rcmi-align-center .rcmi-parallax-copy .lede{ margin-left: auto; margin-right: auto; }
+.rcmi-align-center .hero-copy{ max-width: 760px; margin-left: auto; margin-right: auto; }
 
 .rcmi-align-right .hero-copy{ grid-column: 1 / -1; }
 .rcmi-align-right .rcmi-parallax-copy,
-.rcmi-align-right .hero-copy{ max-width: 570px; margin-left: auto; margin-right: 0; text-align: right; }
-.rcmi-align-right .hero-copy .eyebrow::before{ display: none; }
-.rcmi-align-right .hero-actions,
-.rcmi-align-right .rcmi-parallax-copy .hero-actions{ justify-content: flex-end; }
-.rcmi-align-right .hero-copy .lede,
-.rcmi-align-right .rcmi-parallax-copy .lede{ margin-left: auto; margin-right: 0; }
+.rcmi-align-right .hero-copy{ max-width: 570px; margin-left: auto; margin-right: 0; }
 .rcmi-parallax-copy h1{
   margin-bottom: 10px;
   font-family: var(--font-serif);
@@ -490,20 +518,45 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 /* Button always keeps its own color regardless of block text color */
 .has-text-color .hero-actions .btn{ color: #fff; }
 .rcmi-parallax-copy .hero-actions{ margin-top: 16px; }
-@media (max-width: 800px){
-  .rcmi-parallax{ min-height: 70vh !important; }
-  .rcmi-parallax-copy h1{ font-size: clamp(2rem, 9vw, 3rem); }
-  .rcmi-parallax-inner{ padding: 32px var(--space-3); }
+@media (max-width: 900px){
+  .hero,
+  .rcmi-parallax{
+    min-height: 0 !important;
+    align-items: flex-start;
+    padding-bottom: 0 !important;
+  }
+  .hero-inner,
+  .rcmi-parallax-inner{ padding: 72px var(--container-inline-padding) 96px; }
+  .hero-copy,
+  .rcmi-parallax-copy{ width: 100%; max-width: 100%; }
+  .hero-copy h1,
+  .rcmi-parallax-copy h1{
+    max-width: 100%;
+    font-size: clamp(2.15rem, 9vw, 3.5rem);
+    overflow-wrap: anywhere;
+  }
+  .hero-copy .lede,
+  .rcmi-parallax-copy .lede{ max-width: 100%; }
+  .hero-actions,
+  .rcmi-parallax-copy .wp-block-buttons{ max-width: 100%; }
+  .hero-actions .btn,
+  .rcmi-parallax-copy .wp-block-button__link{ max-width: 100%; white-space: normal; }
 }
 @media (max-width: 480px){
-  .rcmi-parallax{ min-height: 60vh !important; }
-  .rcmi-parallax-copy h1{ font-size: clamp(1.85rem, 8.5vw, 2.6rem); }
+  .hero-inner,
+  .rcmi-parallax-inner{ padding: 56px var(--container-inline-padding) 72px; }
+  .hero-copy h1,
+  .rcmi-parallax-copy h1{ font-size: clamp(2rem, 8.5vw, 2.8rem); }
+  .hero-copy .lede,
   .rcmi-parallax-copy .lede{ font-size: 1rem; }
+  .hero-actions .btn,
   .rcmi-parallax-copy .hero-actions .btn,
   .rcmi-parallax-copy .wp-block-button__link{ padding: 12px 20px; font-size: .85rem; }
 }
 @media (prefers-reduced-motion: reduce){
-  .rcmi-parallax-layer{ transform: none !important; }
+  /* <img> layers keep their centering + position transform; content layer has no transform. */
+  .rcmi-parallax-layer{ transform: translate(calc(-50% + var(--pos-x)),calc(-50% + var(--pos-y))) !important; }
+  .rcmi-parallax-copy{ transform: none !important; }
 }
 .hero-actions .btn-primary:hover{ background:#a10d26; border-color:#a10d26; }
 .hero-actions .btn-outline{ color: var(--red); border-color: var(--red); background: rgba(255,255,255,.35); }
@@ -511,22 +564,13 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .hero-meta, .hero-caption{ display:none; }
 
 @media (max-width: 900px){
-  .hero{ min-height: 70vh !important; align-items:flex-start; padding-bottom: 80px !important; }
   .hero-media{ background:
     linear-gradient(180deg, #f8f5ee 0%, rgba(248,245,238,0.4) 40%, rgba(248,245,238,0) 65%),
     linear-gradient(90deg, rgba(248,245,238,0.85) 0%, rgba(248,245,238,0.3) 30%, rgba(248,245,238,0) 50%),
     url('../images/hero.png') center/cover no-repeat;
   }
   .hero-copy{ grid-column:1 / -1; }
-  .hero-copy h1{ max-width: 520px; font-size: clamp(2.35rem, 9vw, 3.5rem); }
-  .hero-copy .lede{ max-width: 460px; }
   .impact-strip{ margin: 0; }
-}
-@media (max-width: 480px){
-  .hero{ padding-bottom: 60px !important; }
-  .hero-inner{ padding:24px var(--space-3); }
-  .hero-copy h1{ font-size: clamp(2rem, 8.5vw, 3rem); }
-  .hero-actions .btn{ padding: 12px 20px; font-size: .85rem; }
 }
 
 /* --------------------------- impact overview ------------------------------- */
@@ -671,7 +715,8 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .tab-panel .section-head h2 strong{ color:var(--red); font-family:inherit; font-weight:400; }
 .tab-panel .section-note{ width:38%; font-size:.9rem; line-height:1.45; }
 .tab-panel .card-grid{ position:relative; z-index:1; }
-.tab-panel .card{ min-height:158px; border-radius:9px; background:rgba(255,255,255,.96); box-shadow:0 6px 18px rgba(51,35,22,.08); }
+.tab-panel .card{ min-height:158px; border-radius:9px; background:rgba(255,255,255,.9); box-shadow:0 6px 18px rgba(51,35,22,.08); transition: background var(--transition), transform var(--transition), box-shadow var(--transition); }
+.tab-panel .card:hover{ background:rgba(255,255,255,1); border-color: transparent; box-shadow: 0 12px 28px rgba(51,35,22,.12); transform: translateY(-3px); }
 .tab-panel .card .tag{ color:#2e7b63; }
 .tab-panel .card::after{
   content:""; display:block; width:22px; height:2px; margin-top:12px; background:var(--red);
@@ -1055,7 +1100,12 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .rcmi-theme .wp-block-group.wrap {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 var(--space-3);
+  padding: 0 var(--container-inline-padding);
+}
+@media (max-width: 767px){
+  .rcmi-theme .wp-block-group.wrap {
+    padding: 0 var(--space-4);
+  }
 }
 
 /* ============================================================
@@ -1108,12 +1158,6 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   color: #fff;
   border-radius: 999px;
 }
-
-/* Alignment-aware button positioning */
-.rcmi-align-center .rcmi-parallax-copy .wp-block-buttons,
-.rcmi-align-center .hero-copy .wp-block-buttons { justify-content: center; }
-.rcmi-align-right .rcmi-parallax-copy .wp-block-buttons,
-.rcmi-align-right .hero-copy .wp-block-buttons { justify-content: flex-end; }
 
 /* Text color override: when the block has a text color set,
    buttons keep their own colors (white on red). */

@@ -142,7 +142,13 @@ add_action( 'enqueue_block_editor_assets', 'rcmi_editor_assets' );
  * @return string
  */
 function rcmi_asset_version( $path ) {
-	return file_exists( $path ) ? (string) filemtime( $path ) : '1';
+	// Combine filemtime with the installed GitHub SHA.
+	// On Windows/IIS, copy_dir(overwrite=true) may preserve the old
+	// file's mtime, so filemtime alone doesn't bust caches on update.
+	// The SHA changes with every commit, guaranteeing a new version.
+	$mtime = file_exists( $path ) ? (string) filemtime( $path ) : '1';
+	$sha   = rcmi_theme_get_installed_sha();
+	return $sha ? $mtime . '-' . substr( $sha, 0, 7 ) : $mtime;
 }
 
 /**

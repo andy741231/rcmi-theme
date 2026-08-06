@@ -615,8 +615,8 @@ function rcmi_render_site_footer_block( $attributes = array() ) {
 
 	// Footer bottom bar (static chrome).
 	$bottom  = '<div class="footer-bottom">';
-	$bottom .= '<span>&copy; ' . gmdate( 'Y' ) . ' Research Capacity &amp; Mentoring Institute.</span>';
-	$bottom .= '<span>Visual identity follows the University of Houston Brand Style Guide.</span>';
+	$bottom .= '<span>&copy; ' . gmdate( 'Y' ) . ' UH RCMI</span>';
+	$bottom .= '<span></span>';
 	$bottom .= '</div>';
 
 	$output  = '<footer class="' . $footer_class . '"' . $footer_style . '>';

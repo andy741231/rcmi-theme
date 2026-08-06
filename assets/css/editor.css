@@ -443,14 +443,17 @@
   justify-content: center;
 }
 .editor-styles-wrapper .rcmi-parallax-layer-preview.is-empty {
-  /* Placeholder when no image is set. */
+  /* Placeholder when no image is set. Background is transparent so
+     empty layers don't paint over lower layers that DO have images.
+     The dashed-border label (below) is enough to indicate emptiness. */
   inset: 0;
   width: auto;
   height: auto;
   transform: none;
   top: 0;
   left: 0;
-  background: #f8f5ee;
+  background: transparent;
+  pointer-events: none;
 }
 .editor-styles-wrapper .rcmi-parallax-layer-preview:nth-child(2) {
   /* Middle layer preview shown at reduced opacity so layers are distinguishable. */

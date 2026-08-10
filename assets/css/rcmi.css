@@ -70,6 +70,12 @@ img{ max-width:100%; display:block; }
 .wp-block-spectra-button img,
 .spectra-button__icon img,
 .spectra-button__icon svg{ display: inline-block; }
+/* Spectra containers use ::before with z-index:-1 for background color.
+   The html{background:#333} rule above prevents body bg from propagating
+   to the canvas, so the body's opaque white bg paints over the ::before
+   in the root stacking context. isolation:isolate gives each container
+   its own stacking context so the ::before stays inside the container. */
+.wp-block-spectra-container{ isolation: isolate; }
 a{ color: inherit; text-decoration: none; }
 h1,h2,h3,h4{
   font-family: var(--font-display);

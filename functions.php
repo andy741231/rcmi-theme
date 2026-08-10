@@ -507,6 +507,7 @@ function rcmi_register_site_footer_block() {
 			'logoMark'        => array( 'type' => 'string', 'default' => 'RC' ),
 			'logoText'        => array( 'type' => 'string', 'default' => 'RCMI' ),
 			'footerText'      => array( 'type' => 'string', 'default' => 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' ),
+			'copyrightText'   => array( 'type' => 'string', 'default' => '© {year} UH RCMI' ),
 		),
 		'render_callback' => 'rcmi_render_site_footer_block',
 	) );
@@ -613,10 +614,11 @@ function rcmi_render_site_footer_block( $attributes = array() ) {
 		'echo'           => false,
 	) );
 
-	// Footer bottom bar (static chrome).
+	// Footer bottom bar (copyright text, {year} replaced dynamically).
+	$copyright_raw = isset( $attributes['copyrightText'] ) ? $attributes['copyrightText'] : '© {year} UH RCMI';
+	$copyright     = str_replace( '{year}', gmdate( 'Y' ), $copyright_raw );
 	$bottom  = '<div class="footer-bottom">';
-	$bottom .= '<span>&copy; ' . gmdate( 'Y' ) . ' UH RCMI</span>';
-	$bottom .= '<span></span>';
+	$bottom .= '<span>' . esc_html( $copyright ) . '</span>';
 	$bottom .= '</div>';
 
 	$output  = '<footer class="' . $footer_class . '"' . $footer_style . '>';

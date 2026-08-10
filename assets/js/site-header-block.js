@@ -246,6 +246,7 @@
           if (ctrl.type === 'text') {
             return el(TextControl, {
               label: ctrl.label,
+              help: ctrl.help,
               value: attrs[ctrl.attr],
               onChange: function (val) { var u = {}; u[ctrl.attr] = val; setAttributes(u); }
             });
@@ -359,7 +360,8 @@
       borderTop: { type: 'boolean', default: false },
       logoMark: { type: 'string', default: 'RC' },
       logoText: { type: 'string', default: 'RCMI' },
-      footerText: { type: 'string', default: 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' }
+      footerText: { type: 'string', default: 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' },
+      copyrightText: { type: 'string', default: '© {year} UH RCMI' }
     },
     supports: {
       anchor: false,
@@ -373,7 +375,8 @@
         controls: [
           { type: 'text', label: __('Logo mark (text badge)', 'rcmi'), attr: 'logoMark' },
           { type: 'text', label: __('Logo text', 'rcmi'), attr: 'logoText' },
-          { type: 'text', label: __('Footer description', 'rcmi'), attr: 'footerText' }
+          { type: 'text', label: __('Footer description', 'rcmi'), attr: 'footerText' },
+          { type: 'text', label: __('Copyright text', 'rcmi'), attr: 'copyrightText', help: __('Use {year} for the current year.', 'rcmi') }
         ]
       },
       {

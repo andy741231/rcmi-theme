@@ -52,7 +52,7 @@ mark.has-inline-color{ background-color: transparent; }
 mark.has-inline-highlight{ color: inherit; }
 .has-display-font{ font-family: 'League Gothic', 'Arial Narrow', sans-serif !important; text-transform: uppercase; letter-spacing: 0.01em; }
 .has-body-font{ font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif !important; }
-.has-serif-font{ font-family: 'Crimson Pro', Georgia, serif !important; }html{ scroll-behavior: smooth; scroll-padding-top: 248px; overflow-x: hidden; }
+.has-serif-font{ font-family: 'Crimson Pro', Georgia, serif !important; }html{ scroll-behavior: smooth; scroll-padding-top: 248px; overflow-x: hidden; margin-left: auto; margin-right: auto; background: #333; max-width: 1920px; }
 body{
   margin:0;
   font-family: var(--font-body);
@@ -243,12 +243,15 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   color: var(--rcmi-header-text, #fff);
 }
 .nav-logo .mark{
-  width: 34px; height: 34px;
+  min-width: 34px; height: 34px;
+  padding: 0 8px;
   background: var(--rcmi-header-text, #fff);
   color: var(--rcmi-header-bg, var(--color-primary));
   display:flex; align-items:center; justify-content:center;
   font-family: var(--font-body); font-weight:800; font-size: 0.95rem;
   border-radius: var(--radius);
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 .nav-logo .sub{ font-family: var(--font-body); font-size: 0.62rem; letter-spacing: 0.14em; text-transform:uppercase; color: color-mix(in srgb, var(--rcmi-header-text, #fff) 80%, transparent); display:block; font-weight:600; }
 .nav-logo-image{ display:flex; align-items:center; }
@@ -299,7 +302,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 @media (max-width: 1100px) and (min-width: 901px){
   .nav{ padding: 6px 0; }
   .nav-logo{ font-size: 1.25rem; gap:8px; }
-  .nav-logo .mark{ width:32px; height:32px; }
+  .nav-logo .mark{ min-width:32px; height:32px; }
   .nav-logo .sub{ font-size:.5rem; }
   .nav-links{ gap: 18px; }
   .nav-links > li > a{ font-size:.78rem; }
@@ -346,7 +349,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .footer-col ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
 .footer-col a{ color: color-mix(in srgb, var(--rcmi-footer-text, #fff) 80%, transparent); font-size: 0.92rem; transition: color var(--transition); }
 .footer-col a:hover{ color: var(--rcmi-footer-accent, #fff); }
-.footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding-top: var(--space-3); font-size: 0.82rem; color: color-mix(in srgb, var(--rcmi-footer-text, #fff) 70%, transparent); flex-wrap:wrap; gap: var(--space-2); }
+.footer-bottom{ display:flex; justify-content:center; align-items:center; padding-top: var(--space-3); font-size: 0.82rem; color: color-mix(in srgb, var(--rcmi-footer-text, #fff) 70%, transparent); flex-wrap:wrap; gap: var(--space-2); }
 .footer-bottom a{ color: color-mix(in srgb, var(--rcmi-footer-text, #fff) 70%, transparent); }
 .footer-bottom a:hover{ color: var(--rcmi-footer-accent, #fff); }
 
@@ -1085,6 +1088,12 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .rcmi-theme .wp-site-blocks * { box-sizing: border-box; }
 .rcmi-theme .alignwide { max-width: var(--container-max); margin-left: auto; margin-right: auto; }
 .rcmi-theme .alignfull { width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
+.rcmi-theme .rcmi-parallax.alignfull {
+  width: 100vw;
+  max-width: 1920px;
+  margin-left: calc(50% - min(50vw, 960px));
+  margin-right: calc(50% - min(50vw, 960px));
+}
 
 /* Allow custom-HTML blocks inside patterns to render our components */
 .rcmi-theme .wp-block-html { margin: 0; }

@@ -1100,6 +1100,14 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   margin-left: calc(50% - min(50vw, 960px));
   margin-right: calc(50% - min(50vw, 960px));
 }
+/* Cap Spectra full-bleed containers at the site max-width (1920px),
+   matching the html{max-width:1920px} constraint. Without this, the
+   alignfull 100vw width overflows on viewports wider than 1920px. */
+.rcmi-theme .wp-block-spectra-container.alignfull {
+  max-width: 1920px;
+  margin-left: calc(50% - min(50vw, 960px));
+  margin-right: calc(50% - min(50vw, 960px));
+}
 
 /* Allow custom-HTML blocks inside patterns to render our components */
 .rcmi-theme .wp-block-html { margin: 0; }

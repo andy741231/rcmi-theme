@@ -26,6 +26,7 @@
   var ToggleControl = wp.components.ToggleControl;
   var TextControl = wp.components.TextControl;
   var SelectControl = wp.components.SelectControl;
+  var RangeControl = wp.components.RangeControl;
   var Button = wp.components.Button;
   var __ = wp.i18n.__;
 
@@ -141,7 +142,7 @@
     }
     function addBtn() {
       var next = buttons.slice();
-      next.push({ text: '', link: '/', style: 'primary' });
+      next.push({ text: '', link: '/', style: 'primary', borderRadius: 0 });
       setAttributes({ buttons: next });
     }
     function moveBtn(idx, dir) {
@@ -201,6 +202,15 @@
             { label: __('Outline', 'rcmi'), value: 'outline' }
           ],
           onChange: function (val) { updateBtn(idx, 'style', val); }
+        }),
+        el(RangeControl, {
+          label: __('Border radius (px)', 'rcmi'),
+          help: __('Leave at 0 to use the theme default.', 'rcmi'),
+          value: btn.borderRadius !== undefined && btn.borderRadius !== '' ? btn.borderRadius : 0,
+          min: 0,
+          max: 999,
+          initialPosition: 0,
+          onChange: function (val) { updateBtn(idx, 'borderRadius', val); }
         })
       );
     });

@@ -317,7 +317,11 @@ function rcmi_render_site_header_block( $attributes = array() ) {
 		if ( 0 === strpos( $btn_link, '/' ) ) {
 			$btn_link = home_url( $btn_link );
 		}
-		$cta .= '<a href="' . esc_url( $btn_link ) . '" class="' . esc_attr( $btn_class ) . '">' . esc_html( $btn['text'] ) . '</a>';
+		$btn_inline_style = '';
+		if ( isset( $btn['borderRadius'] ) && '' !== $btn['borderRadius'] && 0 !== $btn['borderRadius'] ) {
+			$btn_inline_style = ' style="border-radius:' . esc_attr( $btn['borderRadius'] ) . 'px"';
+		}
+		$cta .= '<a href="' . esc_url( $btn_link ) . '" class="' . esc_attr( $btn_class ) . '"' . $btn_inline_style . '>' . esc_html( $btn['text'] ) . '</a>';
 	}
 	$cta .= '</div>';
 
@@ -351,7 +355,11 @@ function rcmi_render_site_header_block( $attributes = array() ) {
 		if ( 0 === strpos( $btn_link, '/' ) ) {
 			$btn_link = home_url( $btn_link );
 		}
-		$mobile_cta .= '<a href="' . esc_url( $btn_link ) . '" class="' . esc_attr( $btn_class ) . '">' . esc_html( $btn['text'] ) . '</a>';
+		$btn_inline_style = '';
+		if ( isset( $btn['borderRadius'] ) && '' !== $btn['borderRadius'] && 0 !== $btn['borderRadius'] ) {
+			$btn_inline_style = ' style="border-radius:' . esc_attr( $btn['borderRadius'] ) . 'px"';
+		}
+		$mobile_cta .= '<a href="' . esc_url( $btn_link ) . '" class="' . esc_attr( $btn_class ) . '"' . $btn_inline_style . '>' . esc_html( $btn['text'] ) . '</a>';
 	}
 	$mobile_cta .= '</div>';
 

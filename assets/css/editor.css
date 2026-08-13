@@ -591,8 +591,22 @@
 .editor-styles-wrapper .rcmi-slide-block-editor {
   position: relative;
   width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
   background: #f8f5ee;
   overflow: hidden;
+}
+/* Force full-bleed in the editor iframe regardless of align class,
+   matching the parallax/hero block behavior. The .rcmi-theme body class
+   is only on the frontend, so .rcmi-theme .alignfull doesn't match here. */
+.editor-styles-wrapper .wp-block-rcmi-slide-block.alignfull,
+.editor-styles-wrapper .wp-block-rcmi-slide-block.alignwide {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 .editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide {
   position: relative;

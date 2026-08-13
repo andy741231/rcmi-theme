@@ -514,10 +514,10 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
    inside should fill that 1280px content area — not break out to 100vw.
    This keeps the container aligned with header, footer, and other
    site content. */
-.rcmi-parallax-copy .wp-block-spectra-container.alignfull,
-.rcmi-parallax-copy .wp-block-group.alignfull,
-.hero-copy .wp-block-spectra-container.alignfull,
-.hero-copy .wp-block-group.alignfull{
+.rcmi-theme .rcmi-parallax-copy .wp-block-spectra-container.alignfull,
+.rcmi-theme .rcmi-parallax-copy .wp-block-group.alignfull,
+.rcmi-theme .hero-copy .wp-block-spectra-container.alignfull,
+.rcmi-theme .hero-copy .wp-block-group.alignfull{
   width: 100%;
   max-width: 100%;
   margin-left: 0;

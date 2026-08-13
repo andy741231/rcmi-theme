@@ -494,15 +494,17 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .rcmi-align-right .hero-copy{ grid-column: 1 / -1; }
 .rcmi-align-right .rcmi-parallax-copy,
 .rcmi-align-right .hero-copy{ max-width: 570px; margin-left: auto; margin-right: 0; }
-/* Layout blocks (Spectra Container, core/group) inserted as direct children
-   of the hero copy should NOT inherit the 570px/760px readability cap —
-   their width is controlled by the block's own width attribute so editors
-   can build full-width layouts inside the hero. Text content (headings,
-   paragraphs, buttons) keeps the cap for readability. */
-.rcmi-parallax-copy > .wp-block-spectra-container,
-.rcmi-parallax-copy > .wp-block-group,
-.hero-copy > .wp-block-spectra-container,
-.hero-copy > .wp-block-group{
+/* Layout blocks (Spectra Container, core/group) inserted inside the hero
+   copy should NOT inherit the 570px/760px readability cap — their width is
+   controlled by the block's own width attribute so editors can build
+   full-width layouts inside the hero. When the copy contains a layout
+   block, remove the cap from the parent so the block's width attribute
+   takes effect. Uses :has() which works in both editor and frontend
+   regardless of InnerBlocks wrapper elements. */
+.rcmi-parallax-copy:has(.wp-block-spectra-container),
+.rcmi-parallax-copy:has(.wp-block-group),
+.hero-copy:has(.wp-block-spectra-container),
+.hero-copy:has(.wp-block-group){
   max-width: 100%;
   width: 100%;
 }

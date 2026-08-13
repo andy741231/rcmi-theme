@@ -480,6 +480,13 @@
   box-sizing: border-box;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy { max-width: 570px; }
+/* When the hero copy contains a layout block, remove the readability cap
+   so the block's own width attribute controls the width. Matches the
+   frontend rule in rcmi.css. */
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy:has(.wp-block-spectra-container),
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy:has(.wp-block-group),
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy:has(.wp-block-spectra-container),
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy:has(.wp-block-group) { max-width: 100%; width: 100%; }
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
   margin-bottom: 10px;
   font-family: var(--font-serif);

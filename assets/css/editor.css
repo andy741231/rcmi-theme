@@ -590,10 +590,10 @@
 /* === RCMI Slide Block editor styles === */
 .editor-styles-wrapper .rcmi-slide-block-editor {
   position: relative;
-  width: 100%;
-  max-width: none;
-  margin-left: 0;
-  margin-right: 0;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   box-sizing: border-box;
   background: #f8f5ee;
   overflow: hidden;
@@ -603,10 +603,10 @@
    is only on the frontend, so .rcmi-theme .alignfull doesn't match here. */
 .editor-styles-wrapper .wp-block-rcmi-slide-block.alignfull,
 .editor-styles-wrapper .wp-block-rcmi-slide-block.alignwide {
-  width: 100%;
-  max-width: none;
-  margin-left: 0;
-  margin-right: 0;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 .editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide {
   position: relative;

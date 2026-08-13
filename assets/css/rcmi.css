@@ -508,6 +508,21 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   max-width: 100%;
   width: 100%;
 }
+/* Neutralize alignfull breakout for containers inside the hero copy.
+   The parent (.rcmi-parallax-inner / .hero-inner) is already capped at
+   var(--container-max) with auto margins, so a full-width container
+   inside should fill that 1280px content area — not break out to 100vw.
+   This keeps the container aligned with header, footer, and other
+   site content. */
+.rcmi-parallax-copy .wp-block-spectra-container.alignfull,
+.rcmi-parallax-copy .wp-block-group.alignfull,
+.hero-copy .wp-block-spectra-container.alignfull,
+.hero-copy .wp-block-group.alignfull{
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
 .rcmi-parallax-copy h1{
   margin-bottom: 10px;
   font-family: var(--font-serif);

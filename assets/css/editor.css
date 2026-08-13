@@ -487,6 +487,13 @@
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy:has(.wp-block-group),
 .editor-styles-wrapper .rcmi-parallax-editor .hero-copy:has(.wp-block-spectra-container),
 .editor-styles-wrapper .rcmi-parallax-editor .hero-copy:has(.wp-block-group) { max-width: 100%; width: 100%; }
+/* Neutralize alignfull breakout for containers inside the hero copy,
+   matching the frontend rule in rcmi.css. The parent is already capped
+   at var(--container-max), so alignfull should fill that, not 100vw. */
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .wp-block-spectra-container.alignfull,
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .wp-block-group.alignfull,
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy .wp-block-spectra-container.alignfull,
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy .wp-block-group.alignfull { width: 100%; max-width: 100%; margin-left: 0; margin-right: 0; }
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
   margin-bottom: 10px;
   font-family: var(--font-serif);

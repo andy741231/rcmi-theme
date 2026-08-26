@@ -914,6 +914,17 @@ function rcmi_theme_post_install_rename( $response, $hook_extra, $result ) {
 	// Just clear the theme cache so WordPress sees the new files.
 	search_theme_directories( true );
 
+	// Clear PHP's file stat cache so the editor sees updated template files.
+	// On IIS with persistent FastCGI processes, PHP caches file metadata
+	// (size, mtime) and doesn't notice that files were replaced until the
+	// stat cache expires. This makes the Site Editor show stale templates.
+	clearstatcache( true );
+
+	// Reset opcache if available — forces PHP to re-read all PHP files.
+	if ( function_exists( 'opcache_reset' ) ) {
+		opcache_reset();
+	}
+
 	$commit = rcmi_theme_get_github_commit();
 	if ( $commit && ! empty( $commit['sha'] ) ) {
 		update_option( 'rcmi_theme_installed_sha', $commit['sha'] );

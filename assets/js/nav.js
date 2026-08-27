@@ -28,6 +28,23 @@
   window.addEventListener('load', adjustHeaderOffset);
   window.addEventListener('resize', adjustHeaderOffset);
 
+  var storyProgress = document.querySelector('.rcmi-story-progress span');
+  var storyContent = document.querySelector('.wp-block-post-content');
+  if (storyProgress && storyContent) {
+    var updateStoryProgress = function () {
+      var start = storyContent.getBoundingClientRect().top + window.scrollY;
+      var distance = Math.max(1, storyContent.offsetHeight - window.innerHeight);
+      var progress = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
+      storyProgress.style.transform = 'scaleX(' + progress + ')';
+    };
+    updateStoryProgress();
+    window.addEventListener('scroll', updateStoryProgress, { passive: true });
+    window.addEventListener('resize', updateStoryProgress);
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(updateStoryProgress).observe(storyContent);
+    }
+  }
+
   // Mobile nav toggle.
   var btn = document.querySelector('.nav-toggle');
   var panel = document.getElementById('mobile-nav');
@@ -109,4 +126,25 @@
       });
     });
   }
+
+  // Copy-link share button.
+  document.querySelectorAll('.rcmi-story-share-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var url = btn.getAttribute('data-url');
+      if (!url) return;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function () {
+          btn.classList.add('copied');
+          setTimeout(function () { btn.classList.remove('copied'); }, 2000);
+        });
+      } else {
+        var input = document.createElement('input');
+        input.value = url;
+        document.body.appendChild(input);
+        input.select();
+        try { document.execCommand('copy'); btn.classList.add('copied'); setTimeout(function () { btn.classList.remove('copied'); }, 2000); } catch (e) {}
+        document.body.removeChild(input);
+      }
+    });
+  });
 })();

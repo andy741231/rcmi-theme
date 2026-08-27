@@ -53,6 +53,133 @@ if ( ! function_exists( 'rcmi_setup' ) ) {
 add_action( 'after_setup_theme', 'rcmi_setup' );
 
 /**
+ * Register external link post meta.
+ */
+function rcmi_register_external_link_meta() {
+	register_post_meta( 'post', 'rcmi_external_url', array(
+		'type'         => 'string',
+		'single'       => true,
+		'default'      => '',
+		'show_in_rest' => true,
+		'sanitize_callback' => 'esc_url_raw',
+	) );
+}
+add_action( 'init', 'rcmi_register_external_link_meta' );
+
+/**
+ * Add meta box for external link URL in the post editor.
+ */
+function rcmi_external_link_meta_box() {
+	add_meta_box(
+		'rcmi_external_link',
+		__( 'External Link', 'rcmi' ),
+		'rcmi_external_link_meta_box_html',
+		'post',
+		'side',
+		'high'
+	);
+}
+add_action( 'add_meta_boxes', 'rcmi_external_link_meta_box' );
+
+function rcmi_external_link_meta_box_html( $post ) {
+	wp_nonce_field( 'rcmi_external_link_nonce', 'rcmi_external_link_nonce_field' );
+	$url = get_post_meta( $post->ID, 'rcmi_external_url', true );
+	?>
+	<p style="margin:0 0 8px;color:#666;font-size:12px;">
+		Paste an external URL to make this post redirect to it. Leave empty for a normal story post.
+	</p>
+	<input type="url" name="rcmi_external_url" value="<?php echo esc_attr( $url ); ?>" placeholder="https://example.com/article" style="width:100%;" />
+	<?php
+}
+
+function rcmi_save_external_link_meta( $post_id ) {
+	if ( ! isset( $_POST['rcmi_external_link_nonce_field'] ) || ! wp_verify_nonce( $_POST['rcmi_external_link_nonce_field'], 'rcmi_external_link_nonce' ) ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	$url = isset( $_POST['rcmi_external_url'] ) ? esc_url_raw( wp_unslash( $_POST['rcmi_external_url'] ) ) : '';
+	update_post_meta( $post_id, 'rcmi_external_url', $url );
+}
+add_action( 'save_post', 'rcmi_save_external_link_meta' );
+
+/**
+ * Redirect single post to external URL when set.
+ */
+function rcmi_redirect_external_link() {
+	if ( ! is_singular( 'post' ) ) {
+		return;
+	}
+	$url = get_post_meta( get_the_ID(), 'rcmi_external_url', true );
+	if ( $url ) {
+		wp_redirect( $url, 302 );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'rcmi_redirect_external_link' );
+
+/**
+ * Get the external link URL for a post, or empty string.
+ */
+function rcmi_get_external_link( $post_id = null ) {
+	if ( null === $post_id ) {
+		$post_id = get_the_ID();
+	}
+	$url = get_post_meta( $post_id, 'rcmi_external_url', true );
+	return $url ? $url : '';
+}
+
+/**
+ * Replace post permalink with external link on archive/blog cards.
+ */
+function rcmi_external_link_post_title( $block_content, $block ) {
+	if ( 'core/post-title' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	$url = rcmi_get_external_link();
+	if ( ! $url ) {
+		return $block_content;
+	}
+	// Replace the href in the link with the external URL and add target=_blank.
+	$block_content = preg_replace( '/href="[^"]*"/', 'href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer"', $block_content );
+	// Add external link icon after the title text.
+	$icon = ' <svg class="rcmi-external-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>';
+	$block_content = preg_replace( '/(<\/a>)/', $icon . '$1', $block_content );
+	return $block_content;
+}
+add_filter( 'render_block', 'rcmi_external_link_post_title', 10, 2 );
+
+function rcmi_external_link_featured_image( $block_content, $block ) {
+	if ( 'core/post-featured-image' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	$url = rcmi_get_external_link();
+	if ( ! $url ) {
+		return $block_content;
+	}
+	$block_content = preg_replace( '/href="[^"]*"/', 'href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer"', $block_content );
+	return $block_content;
+}
+add_filter( 'render_block', 'rcmi_external_link_featured_image', 10, 2 );
+
+function rcmi_external_link_read_more( $block_content, $block ) {
+	if ( 'core/read-more' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	$url = rcmi_get_external_link();
+	if ( ! $url ) {
+		return $block_content;
+	}
+	$block_content = preg_replace( '/href="[^"]*"/', 'href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer"', $block_content );
+	return $block_content;
+}
+add_filter( 'render_block', 'rcmi_external_link_read_more', 10, 2 );
+
+/**
  * Custom nav walkers for the dynamic site header block.
  */
 require_once get_template_directory() . '/inc/class-rcmi-nav-walker.php';
@@ -156,6 +283,174 @@ function rcmi_body_class( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'rcmi_body_class' );
+
+function rcmi_remove_duplicate_skip_link( $block_content, $block ) {
+	if ( 'core/html' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	return str_replace( '<a class="skip-link" href="#main">Skip to content</a>', '', $block_content );
+}
+add_filter( 'render_block', 'rcmi_remove_duplicate_skip_link', 10, 2 );
+
+function rcmi_hide_uncategorized_category( $block_content, $block ) {
+	if ( 'core/post-terms' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	if ( false === stripos( $block_content, 'uncategorized' ) ) {
+		return $block_content;
+	}
+	$terms = get_the_terms( get_the_ID(), 'category' );
+	if ( ! $terms || is_wp_error( $terms ) ) {
+		return '';
+	}
+	$visible = array_filter( $terms, function ( $term ) {
+		return 'uncategorized' !== $term->slug;
+	});
+	if ( empty( $visible ) ) {
+		return '';
+	}
+	return $block_content;
+}
+add_filter( 'render_block', 'rcmi_hide_uncategorized_category', 10, 2 );
+
+function rcmi_hide_empty_excerpt( $block_content, $block ) {
+	if ( 'core/post-excerpt' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	$excerpt = get_the_excerpt( get_the_ID() );
+	if ( '' === trim( wp_strip_all_tags( $excerpt ) ) ) {
+		return '';
+	}
+	return $block_content;
+}
+add_filter( 'render_block', 'rcmi_hide_empty_excerpt', 10, 2 );
+
+function rcmi_simplify_post_author( $block_content, $block ) {
+	if ( 'core/post-author' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	$author_id = get_post_field( 'post_author', get_the_ID() );
+	if ( ! $author_id ) {
+		return $block_content;
+	}
+	$name = get_the_author_meta( 'display_name', $author_id );
+	$url  = get_author_posts_url( $author_id );
+	return '<div class="rcmi-story-author wp-block-post-author"><span class="rcmi-story-author-byline">By</span> <a class="rcmi-story-author-name" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></div>';
+}
+add_filter( 'render_block', 'rcmi_simplify_post_author', 10, 2 );
+
+function rcmi_story_reading_time() {
+	$post = get_post();
+	if ( ! $post ) {
+		return '';
+	}
+	$words   = str_word_count( wp_strip_all_tags( strip_shortcodes( $post->post_content ) ) );
+	$minutes = max( 1, (int) ceil( $words / 220 ) );
+	return '<span class="rcmi-story-reading-time">' . esc_html( sprintf( _n( '%d min read', '%d min read', $minutes, 'rcmi' ), $minutes ) ) . '</span>';
+}
+add_shortcode( 'rcmi_story_reading_time', 'rcmi_story_reading_time' );
+
+function rcmi_story_share() {
+	$post = get_post();
+	if ( ! $post ) {
+		return '';
+	}
+	$url   = get_permalink( $post );
+	$title = rawurlencode( $post->post_title );
+	$enc   = rawurlencode( $url );
+
+	$x_url        = 'https://twitter.com/intent/tweet?text=' . $title . '&url=' . $enc;
+	$facebook_url = 'https://www.facebook.com/sharer/sharer.php?u=' . $enc;
+	$linkedin_url = 'https://www.linkedin.com/sharing/share-offsite/?url=' . $enc;
+
+	return '<span class="rcmi-story-share">' .
+		'<a class="rcmi-story-share-btn" href="' . esc_url( $x_url ) . '" target="_blank" rel="noopener noreferrer" aria-label="Share on X">' .
+			'<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' .
+		'</a>' .
+		'<a class="rcmi-story-share-btn" href="' . esc_url( $facebook_url ) . '" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook">' .
+			'<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>' .
+		'</a>' .
+		'<a class="rcmi-story-share-btn" href="' . esc_url( $linkedin_url ) . '" target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">' .
+			'<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>' .
+		'</a>' .
+		'<button class="rcmi-story-share-btn rcmi-story-share-copy" type="button" aria-label="Copy link" data-url="' . esc_url( $url ) . '">' .
+			'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' .
+			'<span class="rcmi-story-share-copied">Copied!</span>' .
+		'</button>' .
+	'</span>';
+}
+add_shortcode( 'rcmi_story_share', 'rcmi_story_share' );
+
+function rcmi_story_back_link() {
+	return '<a class="rcmi-story-back" href="' . esc_url( home_url( '/stories/' ) ) . '">' . esc_html__( 'All stories', 'rcmi' ) . '</a>';
+}
+add_shortcode( 'rcmi_story_back_link', 'rcmi_story_back_link' );
+
+function rcmi_story_archive_button() {
+	return '<div class="wp-block-buttons"><div class="wp-block-button is-style-fill"><a class="wp-block-button__link wp-element-button" href="' . esc_url( home_url( '/stories/' ) ) . '">' . esc_html__( 'Explore all stories', 'rcmi' ) . '</a></div></div>';
+}
+add_shortcode( 'rcmi_story_archive_button', 'rcmi_story_archive_button' );
+
+function rcmi_story_recent_posts() {
+	$current_id = get_the_ID();
+	$posts = get_posts( array(
+		'numberposts'  => 3,
+		'post_type'    => 'post',
+		'post_status'  => 'publish',
+		'exclude'      => array( $current_id ),
+	) );
+	if ( empty( $posts ) ) {
+		return '';
+	}
+	$out = '<div class="rcmi-story-recent">';
+	foreach ( $posts as $p ) {
+		$thumb = get_the_post_thumbnail( $p->ID, 'medium', array( 'class' => 'rcmi-story-recent__img', 'loading' => 'lazy' ) );
+		$cats  = get_the_category( $p->ID );
+		$cat   = '';
+		foreach ( $cats as $c ) {
+			if ( 'uncategorized' !== $c->slug ) { $cat = $c->name; break; }
+		}
+		$ext_url = rcmi_get_external_link( $p->ID );
+		$out .= '<a class="rcmi-story-recent__card" href="' . esc_url( $ext_url ? $ext_url : get_permalink( $p ) ) . '"' . ( $ext_url ? ' target="_blank" rel="noopener noreferrer"' : '' ) . '>';
+		if ( $thumb ) {
+			$out .= '<div class="rcmi-story-recent__media">' . $thumb . '</div>';
+		}
+		$out .= '<div class="rcmi-story-recent__body">';
+		if ( $cat ) {
+			$out .= '<span class="rcmi-story-recent__cat">' . esc_html( $cat ) . '</span>';
+		}
+		$out .= '<h3 class="rcmi-story-recent__title">' . esc_html( $p->post_title ) . ( $ext_url ? ' <svg class="rcmi-external-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>' : '' ) . '</h3>';
+		$out .= '<time class="rcmi-story-recent__date">' . esc_html( wp_date( 'M j, Y', strtotime( $p->post_date ) ) ) . '</time>';
+		$out .= '</div></a>';
+	}
+	$out .= '</div>';
+	return $out;
+}
+add_shortcode( 'rcmi_story_recent_posts', 'rcmi_story_recent_posts' );
+
+// Fix wpautop corruption of block-level shortcode output in core/shortcode blocks.
+function rcmi_fix_shortcode_block_output( $block_content, $block ) {
+	if ( 'core/shortcode' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	// The shortcode block has already run do_shortcode by this point,
+	// but wpautop may have wrapped the output in <p> tags. Re-render
+	// our block-level shortcodes cleanly.
+	if ( false !== strpos( $block_content, 'rcmi-story-recent' ) ) {
+		return rcmi_story_recent_posts();
+	}
+	// Strip empty <p> tags from other shortcode output.
+	$block_content = preg_replace( '/<p>\s*<\/p>/', '', $block_content );
+	return $block_content;
+}
+add_filter( 'render_block', 'rcmi_fix_shortcode_block_output', 5, 2 );
+
+function rcmi_story_progress() {
+	if ( is_singular( 'post' ) ) {
+		echo '<div class="rcmi-story-progress" aria-hidden="true"><span></span></div>';
+	}
+}
+add_action( 'wp_body_open', 'rcmi_story_progress' );
 
 // ============================================================================
 // Dynamic site header block (rcmi/site-header)
@@ -722,6 +1017,10 @@ add_action( 'after_switch_theme', 'rcmi_auto_create_footer_menu' );
 define( 'RCMI_THEME_GITHUB_USER', 'andy741231' );
 define( 'RCMI_THEME_GITHUB_REPO', 'rcmi-theme' );
 
+function rcmi_theme_github_updates_disabled() {
+	return 'production' !== wp_get_environment_type() || is_dir( __DIR__ . '/.git' );
+}
+
 /**
  * Fetch the latest commit info from the GitHub API.
  * Cached for 6 hours in a transient to avoid rate-limiting.
@@ -803,6 +1102,13 @@ function rcmi_theme_get_installed_sha() {
  * @return object
  */
 function rcmi_theme_check_for_updates( $transient ) {
+	$theme_slug = get_template();
+	if ( rcmi_theme_github_updates_disabled() ) {
+		if ( isset( $transient->response[ $theme_slug ] ) ) {
+			unset( $transient->response[ $theme_slug ] );
+		}
+		return $transient;
+	}
 	if ( empty( $transient->checked ) ) {
 		return $transient;
 	}
@@ -816,8 +1122,6 @@ function rcmi_theme_check_for_updates( $transient ) {
 	if ( $commit['sha'] === $installed_sha ) {
 		return $transient;
 	}
-
-	$theme_slug = get_template();
 
 	$update = array(
 		'theme'       => $theme_slug,
@@ -850,6 +1154,9 @@ add_filter( 'pre_set_site_transient_update_themes', 'rcmi_theme_check_for_update
  * so rename() works on every platform including Windows.
  */
 function rcmi_theme_fix_source_folder( $source, $remote_source, $upgrader, $hook_extra ) {
+	if ( isset( $hook_extra['theme'] ) && false !== strpos( $hook_extra['theme'], 'rcmi' ) && rcmi_theme_github_updates_disabled() ) {
+		return new WP_Error( 'rcmi_theme_updates_disabled', 'RCMI theme updates are disabled in development and Git working copies.' );
+	}
 	if ( is_wp_error( $source ) || ! isset( $hook_extra['theme'] ) ) {
 		return $source;
 	}
@@ -942,6 +1249,9 @@ add_filter( 'upgrader_post_install', 'rcmi_theme_post_install_rename', 10, 3 );
  * triggers an immediate GitHub API call.
  */
 function rcmi_theme_maybe_refresh_release_cache() {
+	if ( rcmi_theme_github_updates_disabled() ) {
+		return;
+	}
 	if ( isset( $_GET['rcmi_theme_check_updates'] ) ) {
 		delete_transient( 'rcmi_theme_github_commit' );
 		delete_site_transient( 'update_themes' );
@@ -959,6 +1269,9 @@ add_action( 'admin_init', 'rcmi_theme_maybe_refresh_release_cache' );
  * with a prominent "Check for updates" button.
  */
 function rcmi_theme_update_admin_notice() {
+	if ( rcmi_theme_github_updates_disabled() ) {
+		return;
+	}
 	$screen = get_current_screen();
 	if ( ! $screen || 'themes' !== $screen->id ) {
 		return;
@@ -1001,7 +1314,7 @@ add_action( 'admin_notices', 'rcmi_theme_update_admin_notice' );
  * @return array
  */
 function rcmi_theme_add_check_updates_link( $links, $file ) {
-	if ( 'rcmi' !== $file ) {
+	if ( rcmi_theme_github_updates_disabled() || 'rcmi' !== $file ) {
 		return $links;
 	}
 	$url = add_query_arg( 'rcmi_theme_check_updates', '1', admin_url( 'themes.php' ) );

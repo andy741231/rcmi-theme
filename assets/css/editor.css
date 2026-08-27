@@ -726,3 +726,25 @@
   }
   .editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-copy .lede { max-width: 100%; font-size: 1rem; }
 }
+
+/* === Story blocks: collapse empty section label / heading === */
+/* When a RichText field only contains a placeholder (no real content),
+   strip its margins so it takes minimal space without overlapping
+   the body text below. The placeholder stays visible and clickable. */
+.editor-styles-wrapper .wp-block-rcmi-story-text,
+.editor-styles-wrapper .wp-block-rcmi-story-split,
+.editor-styles-wrapper .wp-block-rcmi-story-image,
+.editor-styles-wrapper .wp-block-rcmi-story-quote,
+.editor-styles-wrapper .wp-block-rcmi-story-immersive { padding-top: 0 !important; }
+.editor-styles-wrapper .rcmi-story-eyebrow:has(> [data-rich-text-placeholder]:only-child) {
+  margin: 0 0 4px;
+  font-size: .72rem;
+  opacity: .45;
+}
+.editor-styles-wrapper .rcmi-story-text h2:has(> [data-rich-text-placeholder]:only-child),
+.editor-styles-wrapper .rcmi-story-split-copy h2:has(> [data-rich-text-placeholder]:only-child),
+.editor-styles-wrapper .rcmi-story-immersive-copy h2:has(> [data-rich-text-placeholder]:only-child) {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  opacity: .45;
+}

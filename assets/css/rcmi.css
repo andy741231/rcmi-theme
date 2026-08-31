@@ -1351,6 +1351,11 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   box-sizing: border-box;
 }
 .rcmi-slide-copy{ max-width: 570px; }
+.rcmi-slide-copy .eyebrow{
+  display: block; margin-bottom: 12px;
+  color: var(--color-fg); font-size: .64rem; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 700;
+}
 .rcmi-slide-copy h2{
   margin-bottom: 10px;
   font-family: var(--font-serif);
@@ -1556,7 +1561,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 }
 .rcmi-blog-card:hover{ border-color: var(--slate); box-shadow: 0 16px 36px rgba(17,18,19,.09); transform: translateY(-4px); }
 .rcmi-blog-card__image{ margin: 0; overflow: hidden; background: #e8eaeb; }
-.rcmi-blog-card__image img{ width: 100%; transition: transform 500ms cubic-bezier(.4,0,.2,1); }
+.rcmi-blog-card__image img{ width: 100%; height: 100%; object-fit: cover; transition: transform 500ms cubic-bezier(.4,0,.2,1); }
 .rcmi-blog-card:hover .rcmi-blog-card__image img{ transform: scale(1.025); }
 .rcmi-blog-card__body{ display: flex; min-height: 300px; flex: 1; flex-direction: column; padding: var(--space-3); }
 .rcmi-blog-card__meta{ gap: 10px 16px; margin-bottom: var(--space-2); }

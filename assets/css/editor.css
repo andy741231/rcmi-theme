@@ -494,6 +494,52 @@
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .wp-block-group.alignfull,
 .editor-styles-wrapper .rcmi-parallax-editor .hero-copy .wp-block-spectra-container.alignfull,
 .editor-styles-wrapper .rcmi-parallax-editor .hero-copy .wp-block-group.alignfull { width: 100%; max-width: 100%; margin-left: 0; margin-right: 0; }
+/* Chrome renders phantom line boxes from nested inline spans inside
+   contenteditable elements when selected/hovered, inflating the height
+   ~3x and causing large vertical gaps between hero text elements.
+   Fixes:
+   1. Override the Spectra container's flex layout to block so children
+      stack naturally without flex space distribution.
+   2. Suppress ::after/::before pseudo-elements that get height on hover.
+   3. Override white-space:pre-wrap (set inline by the block editor on
+      focus) to normal.
+   4. Use display:flex on selected/hovered RichText elements so they
+      shrink to actual content height, ignoring phantom line boxes. */
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .block-editor-block-list__layout,
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy .block-editor-block-list__layout {
+  display: block !important;
+  flex-direction: unset !important;
+  justify-content: unset !important;
+  align-items: unset !important;
+  gap: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .block-editor-block-list__layout > *,
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy .block-editor-block-list__layout > * {
+  width: auto;
+  height: auto;
+  flex: none;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: auto;
+  align-self: auto;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .block-editor-rich-text__editable::after,
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .block-editor-rich-text__editable::before,
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy .block-editor-rich-text__editable::after,
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy .block-editor-rich-text__editable::before {
+  content: none !important;
+  height: 0 !important;
+  display: none !important;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .block-editor-rich-text__editable,
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy .block-editor-rich-text__editable {
+  white-space: normal !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
   margin-bottom: 10px;
   font-family: var(--font-serif);
@@ -588,6 +634,7 @@
 }
 
 /* === RCMI Slide Block editor styles === */
+/* Parent slider container — slides are stacked vertically in the editor */
 .editor-styles-wrapper .rcmi-slide-block-editor {
   position: relative;
   width: 100% !important;
@@ -595,12 +642,9 @@
   margin-left: 0 !important;
   margin-right: 0 !important;
   box-sizing: border-box;
-  background: #f8f5ee;
-  overflow: hidden;
+  background: #f0ede5;
+  padding: 16px;
 }
-/* Force full-bleed in the editor iframe regardless of align class,
-   matching the parallax/hero block behavior. The .rcmi-theme body class
-   is only on the frontend, so .rcmi-theme .alignfull doesn't match here. */
 .editor-styles-wrapper .wp-block-rcmi-slide-block.alignfull,
 .editor-styles-wrapper .wp-block-rcmi-slide-block.alignwide {
   width: 100% !important;
@@ -608,24 +652,47 @@
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide {
+.editor-styles-wrapper .rcmi-slide-block-editor-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+/* Each rcmi/slide child block in the editor */
+.editor-styles-wrapper .rcmi-slide-editor {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+  border: 2px dashed #d0ccc0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.editor-styles-wrapper .rcmi-slide-editor:last-child {
+  margin-bottom: 0;
+}
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
+  min-height: 320px;
   background-size: 120%;
   background-position: 50% 50%;
   background-repeat: no-repeat;
   box-sizing: border-box;
   overflow: hidden;
 }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-scrim {
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-scrim {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
 }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-inner {
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-inner {
   position: relative;
   z-index: 2;
   width: 100%;
@@ -635,8 +702,13 @@
   padding: 40px var(--container-inline-padding);
   box-sizing: border-box;
 }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-copy { max-width: 570px; }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-copy h2 {
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy { max-width: 570px; }
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy .eyebrow {
+  display: block; margin-bottom: 12px;
+  color: var(--color-fg); font-size: .64rem; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 700;
+}
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 {
   margin-bottom: 10px;
   font-family: var(--font-serif);
   font-size: 3.75rem;
@@ -644,87 +716,26 @@
   letter-spacing: -0.025em;
   line-height: 0.98;
 }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-copy .lede {
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy .lede {
   max-width: 480px;
   margin-bottom: 0;
   font-family: var(--font-body);
   font-size: 1.12rem;
   line-height: 1.4;
 }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-actions .btn {
-  padding: 14px 26px;
-  font-size: .92rem;
-  border-width: 1px;
-  border-radius: 999px;
-}
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-actions .btn-primary {
-  background: var(--red);
-  border-color: var(--red);
-  color: #fff;
-}
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-align-center .rcmi-slide-copy { max-width: 760px; margin: 0 auto; }
-.editor-styles-wrapper .rcmi-slide-block-editor .rcmi-align-right .rcmi-slide-copy { max-width: 570px; margin-left: auto; margin-right: 0; }
-
-/* Editor nav dots */
-.editor-styles-wrapper .rcmi-slide-dots-editor {
-  position: relative;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  padding: 8px 0;
-}
-.editor-styles-wrapper .rcmi-slide-dot {
-  width: 10px;
-  height: 10px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.2);
-  cursor: pointer;
-  padding: 0;
-  transition: background 220ms, transform 220ms;
-}
-.editor-styles-wrapper .rcmi-slide-dot.is-active {
-  background: var(--color-primary);
-  transform: scale(1.3);
-}
-
-/* Editor nav arrows */
-.editor-styles-wrapper .rcmi-slide-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.8);
-  color: var(--color-primary);
-  font-size: 1.8rem;
-  cursor: pointer;
-}
-.editor-styles-wrapper .rcmi-slide-arrow-prev { left: 20px; }
-.editor-styles-wrapper .rcmi-slide-arrow-next { right: 20px; }
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-align-center .rcmi-slide-copy { max-width: 760px; margin: 0 auto; }
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-align-right .rcmi-slide-copy { max-width: 570px; margin-left: auto; margin-right: 0; }
 
 /* Responsive */
 @media (max-width: 900px) {
-  .editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-inner { padding: 72px var(--container-inline-padding) 96px; }
-  .editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-copy { width: 100%; max-width: 100%; }
-  .editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-copy h2 {
+  .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-inner { padding: 72px var(--container-inline-padding) 96px; }
+  .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy { width: 100%; max-width: 100%; }
+  .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 {
     max-width: 100%;
     font-size: clamp(2.15rem, 9vw, 3.5rem);
     overflow-wrap: anywhere;
   }
-  .editor-styles-wrapper .rcmi-slide-block-editor .rcmi-slide-copy .lede { max-width: 100%; font-size: 1rem; }
+  .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy .lede { max-width: 100%; font-size: 1rem; }
 }
 
 /* === Story blocks: collapse empty section label / heading === */

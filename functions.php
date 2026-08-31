@@ -134,6 +134,156 @@ function rcmi_get_external_link( $post_id = null ) {
 }
 
 /**
+ * Register featured image focus point post meta.
+ * Allows editors to set a focal point (0-100% X/Y) for the featured image,
+ * which is applied as object-position on blog cards and single posts.
+ */
+function rcmi_register_focus_meta() {
+	register_post_meta( 'post', 'rcmi_featured_focus_x', array(
+		'type'         => 'number',
+		'single'       => true,
+		'default'      => 50,
+		'show_in_rest' => true,
+		'sanitize_callback' => function ( $value ) {
+			return max( 0, min( 100, intval( $value ) ) );
+		},
+	) );
+	register_post_meta( 'post', 'rcmi_featured_focus_y', array(
+		'type'         => 'number',
+		'single'       => true,
+		'default'      => 50,
+		'show_in_rest' => true,
+		'sanitize_callback' => function ( $value ) {
+			return max( 0, min( 100, intval( $value ) ) );
+		},
+	) );
+}
+add_action( 'init', 'rcmi_register_focus_meta' );
+
+/**
+ * Add meta box for featured image focus point in the post editor.
+ */
+function rcmi_focus_meta_box() {
+	if ( ! function_exists( 'get_post_type' ) ) {
+		return;
+	}
+	add_meta_box(
+		'rcmi_featured_focus',
+		__( 'Featured Image Focus', 'rcmi' ),
+		'rcmi_focus_meta_box_html',
+		'post',
+		'side',
+		'default'
+	);
+}
+add_action( 'add_meta_boxes', 'rcmi_focus_meta_box' );
+
+function rcmi_focus_meta_box_html( $post ) {
+	wp_nonce_field( 'rcmi_focus_nonce', 'rcmi_focus_nonce_field' );
+	$focus_x = get_post_meta( $post->ID, 'rcmi_featured_focus_x', true );
+	$focus_y = get_post_meta( $post->ID, 'rcmi_featured_focus_y', true );
+	if ( '' === $focus_x ) { $focus_x = 50; }
+	if ( '' === $focus_y ) { $focus_y = 50; }
+	$has_thumb = has_post_thumbnail( $post->ID );
+	?>
+	<?php if ( ! $has_thumb ) : ?>
+		<p style="margin:0;color:#666;font-size:12px;">
+			Set a featured image first, then use these sliders to choose which part stays visible when the image is cropped.
+		</p>
+	<?php else : ?>
+		<p style="margin:0 0 10px;color:#666;font-size:12px;">
+			Choose which part of the featured image stays visible when it's cropped to fit blog cards.
+		</p>
+	<?php endif; ?>
+	<div class="rcmi-focus-slider" style="margin-bottom:12px;">
+		<label for="rcmi_focus_x" style="display:block;font-weight:600;margin-bottom:4px;">
+			Horizontal focus: <span id="rcmi_focus_x_val"><?php echo esc_html( $focus_x ); ?></span>%
+		</label>
+		<input type="range" id="rcmi_focus_x" name="rcmi_featured_focus_x"
+			min="0" max="100" step="1" value="<?php echo esc_attr( $focus_x ); ?>"
+			style="width:100%;"
+			oninput="document.getElementById('rcmi_focus_x_val').textContent=this.value;" />
+		<span style="display:flex;justify-content:space-between;font-size:11px;color:#999;">
+			<span>Left</span><span>Center</span><span>Right</span>
+		</span>
+	</div>
+	<div class="rcmi-focus-slider">
+		<label for="rcmi_focus_y" style="display:block;font-weight:600;margin-bottom:4px;">
+			Vertical focus: <span id="rcmi_focus_y_val"><?php echo esc_html( $focus_y ); ?></span>%
+		</label>
+		<input type="range" id="rcmi_focus_y" name="rcmi_featured_focus_y"
+			min="0" max="100" step="1" value="<?php echo esc_attr( $focus_y ); ?>"
+			style="width:100%;"
+			oninput="document.getElementById('rcmi_focus_y_val').textContent=this.value;" />
+		<span style="display:flex;justify-content:space-between;font-size:11px;color:#999;">
+			<span>Top</span><span>Center</span><span>Bottom</span>
+		</span>
+	</div>
+	<?php
+}
+
+/**
+ * Save featured image focus point meta.
+ */
+function rcmi_save_focus_meta( $post_id ) {
+	if ( ! isset( $_POST['rcmi_focus_nonce_field'] ) || ! wp_verify_nonce( $_POST['rcmi_focus_nonce_field'], 'rcmi_focus_nonce' ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+	$focus_x = isset( $_POST['rcmi_featured_focus_x'] ) ? intval( $_POST['rcmi_featured_focus_x'] ) : 50;
+	$focus_y = isset( $_POST['rcmi_featured_focus_y'] ) ? intval( $_POST['rcmi_featured_focus_y'] ) : 50;
+	$focus_x = max( 0, min( 100, $focus_x ) );
+	$focus_y = max( 0, min( 100, $focus_y ) );
+	update_post_meta( $post_id, 'rcmi_featured_focus_x', $focus_x );
+	update_post_meta( $post_id, 'rcmi_featured_focus_y', $focus_y );
+}
+add_action( 'save_post', 'rcmi_save_focus_meta' );
+
+/**
+ * Apply featured image focus point as object-position on rendered post-featured-image blocks.
+ */
+function rcmi_apply_featured_image_focus( $block_content, $block ) {
+	if ( 'core/post-featured-image' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+	$post_id = get_the_ID();
+	if ( ! $post_id ) {
+		return $block_content;
+	}
+	$focus_x = get_post_meta( $post_id, 'rcmi_featured_focus_x', true );
+	$focus_y = get_post_meta( $post_id, 'rcmi_featured_focus_y', true );
+	if ( '' === $focus_x ) { $focus_x = 50; }
+	if ( '' === $focus_y ) { $focus_y = 50; }
+	// Default 50/50 is the browser default — no need to inject.
+	if ( $focus_x == 50 && $focus_y == 50 ) {
+		return $block_content;
+	}
+	$position = $focus_x . '% ' . $focus_y . '%';
+	// Inject object-position into the <img> tag's existing style attribute.
+	if ( false !== strpos( $block_content, '<img' ) ) {
+		if ( preg_match( '/<img\b[^>]*?\bstyle="([^"]*)"/', $block_content, $m, PREG_OFFSET_CAPTURE ) ) {
+			// Has existing style — append object-position to it.
+			$existing = $m[1][0];
+			$existing = preg_replace( '/object-position\s*:\s*[^;]+;?\s*/i', '', $existing );
+			$new_style = trim( $existing ) . ' object-position:' . $position . ';';
+			$pos = $m[1][1];
+			$len = strlen( $m[1][0] );
+			$block_content = substr( $block_content, 0, $pos ) . $new_style . substr( $block_content, $pos + $len );
+		} else {
+			// No existing style attribute — add one right after <img.
+			$block_content = preg_replace( '/(<img\b)/', '$1 style="object-position:' . $position . ';"', $block_content, 1 );
+		}
+	}
+	return $block_content;
+}
+add_filter( 'render_block', 'rcmi_apply_featured_image_focus', 10, 2 );
+
+/**
  * Replace post permalink with external link on archive/blog cards.
  */
 function rcmi_external_link_post_title( $block_content, $block ) {

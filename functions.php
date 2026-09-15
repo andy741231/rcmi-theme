@@ -335,6 +335,7 @@ add_filter( 'render_block', 'rcmi_external_link_read_more', 10, 2 );
 require_once get_template_directory() . '/inc/class-rcmi-nav-walker.php';
 require_once get_template_directory() . '/inc/class-rcmi-mobile-nav-walker.php';
 require_once get_template_directory() . '/inc/class-rcmi-footer-walker.php';
+require_once get_template_directory() . '/inc/seo.php';
 
 function rcmi_editor_font_family_settings( $settings ) {
 	$settings['fontFamilies'] = array(

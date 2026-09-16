@@ -230,6 +230,105 @@ function rcmi_save_seo_meta( $post_id ) {
 }
 add_action( 'save_post', 'rcmi_save_seo_meta' );
 
+function rcmi_seo_is_tickets_page() {
+	if ( ! is_singular( 'page' ) ) {
+		return false;
+	}
+	if ( is_page( 'tickets' ) ) {
+		return true;
+	}
+	$post = get_queried_object();
+	return $post instanceof WP_Post && has_shortcode( (string) $post->post_content, 'rcmi_tickets' );
+}
+
+function rcmi_seo_current_url() {
+	if ( is_404() ) {
+		return '';
+	}
+	if ( is_singular() ) {
+		return (string) wp_get_canonical_url( get_queried_object_id() );
+	}
+	$paged = max( 1, (int) get_query_var( 'paged' ) );
+	if ( $paged > 1 ) {
+		return (string) get_pagenum_link( $paged );
+	}
+	if ( is_front_page() ) {
+		return home_url( '/' );
+	}
+	if ( is_home() ) {
+		$page_for_posts = (int) get_option( 'page_for_posts' );
+		return $page_for_posts ? (string) get_permalink( $page_for_posts ) : home_url( '/' );
+	}
+	if ( is_search() ) {
+		return (string) get_search_link( get_search_query( false ) );
+	}
+	if ( is_category() || is_tag() || is_tax() ) {
+		$url = get_term_link( get_queried_object() );
+		return is_wp_error( $url ) ? '' : (string) $url;
+	}
+	if ( is_author() ) {
+		return (string) get_author_posts_url( get_queried_object_id() );
+	}
+	if ( is_post_type_archive() ) {
+		$post_type = get_query_var( 'post_type' );
+		if ( is_array( $post_type ) ) {
+			$post_type = reset( $post_type );
+		}
+		return (string) get_post_type_archive_link( $post_type );
+	}
+	if ( is_year() ) {
+		return (string) get_year_link( (int) get_query_var( 'year' ) );
+	}
+	if ( is_month() ) {
+		return (string) get_month_link( (int) get_query_var( 'year' ), (int) get_query_var( 'monthnum' ) );
+	}
+	if ( is_day() ) {
+		return (string) get_day_link( (int) get_query_var( 'year' ), (int) get_query_var( 'monthnum' ), (int) get_query_var( 'day' ) );
+	}
+	global $wp;
+	return home_url( '/' . ltrim( (string) ( $wp->request ?? '' ), '/' ) );
+}
+
+function rcmi_seo_robots( $robots ) {
+	if ( is_404() || is_author() || rcmi_seo_is_tickets_page() ) {
+		unset( $robots['index'] );
+		$robots['noindex'] = true;
+		$robots['follow']  = true;
+	}
+	return $robots;
+}
+add_filter( 'wp_robots', 'rcmi_seo_robots' );
+
+function rcmi_seo_archive_canonical() {
+	if ( ( ! is_home() && ! is_archive() ) || is_author() ) {
+		return;
+	}
+	$url = rcmi_seo_current_url();
+	if ( $url ) {
+		echo '<link rel="canonical" href="' . esc_url( $url ) . '" />' . "\n";
+	}
+}
+add_action( 'wp_head', 'rcmi_seo_archive_canonical', 9 );
+
+function rcmi_seo_sitemap_post_args( $args, $post_type ) {
+	if ( 'page' !== $post_type ) {
+		return $args;
+	}
+	$tickets = get_page_by_path( 'tickets', OBJECT, 'page' );
+	if ( $tickets ) {
+		$args['post__not_in']   = isset( $args['post__not_in'] ) ? (array) $args['post__not_in'] : array();
+		$args['post__not_in'][] = (int) $tickets->ID;
+		$args['post__not_in']   = array_values( array_unique( $args['post__not_in'] ) );
+	}
+	return $args;
+}
+add_filter( 'wp_sitemaps_posts_query_args', 'rcmi_seo_sitemap_post_args', 10, 2 );
+
+function rcmi_seo_sitemap_provider( $provider, $name ) {
+	return 'users' === $name ? false : $provider;
+}
+add_filter( 'wp_sitemaps_add_provider', 'rcmi_seo_sitemap_provider', 10, 2 );
+
 // ============================================================================
 // wp_head output: meta description, Open Graph, Twitter cards, JSON-LD
 // ============================================================================
@@ -240,35 +339,33 @@ function rcmi_seo_head() {
 
 	$description = rcmi_seo_description();
 	$title       = wp_get_document_title();
-	global $wp;
-	$url = wp_get_canonical_url();
-	if ( ! $url ) {
-		$url = home_url( isset( $wp->request ) && $wp->request ? trailingslashit( $wp->request ) : '/' );
-	}
+	$url         = rcmi_seo_current_url();
 
 	$image = rcmi_seo_social_image();
 
 	echo '<meta name="description" content="' . esc_attr( $description ) . '" />' . "\n";
 
-	// Open Graph.
-	echo '<meta property="og:locale" content="' . esc_attr( get_locale() ) . '" />' . "\n";
-	echo '<meta property="og:type" content="' . esc_attr( is_singular( 'post' ) ? 'article' : 'website' ) . '" />' . "\n";
-	echo '<meta property="og:title" content="' . esc_attr( $title ) . '" />' . "\n";
-	echo '<meta property="og:description" content="' . esc_attr( $description ) . '" />' . "\n";
-	echo '<meta property="og:url" content="' . esc_attr( $url ) . '" />' . "\n";
-	echo '<meta property="og:site_name" content="' . esc_attr( rcmi_seo_site_name() ) . '" />' . "\n";
-	echo '<meta property="og:image" content="' . esc_url( $image ) . '" />' . "\n";
+	if ( $url ) {
+		// Open Graph.
+		echo '<meta property="og:locale" content="' . esc_attr( get_locale() ) . '" />' . "\n";
+		echo '<meta property="og:type" content="' . esc_attr( is_singular( 'post' ) ? 'article' : 'website' ) . '" />' . "\n";
+		echo '<meta property="og:title" content="' . esc_attr( $title ) . '" />' . "\n";
+		echo '<meta property="og:description" content="' . esc_attr( $description ) . '" />' . "\n";
+		echo '<meta property="og:url" content="' . esc_attr( $url ) . '" />' . "\n";
+		echo '<meta property="og:site_name" content="' . esc_attr( rcmi_seo_site_name() ) . '" />' . "\n";
+		echo '<meta property="og:image" content="' . esc_url( $image ) . '" />' . "\n";
 
-	if ( is_singular( 'post' ) ) {
-		echo '<meta property="article:published_time" content="' . esc_attr( get_the_date( 'c' ) ) . '" />' . "\n";
-		echo '<meta property="article:modified_time" content="' . esc_attr( get_the_modified_date( 'c' ) ) . '" />' . "\n";
+		if ( is_singular( 'post' ) ) {
+			echo '<meta property="article:published_time" content="' . esc_attr( get_the_date( 'c' ) ) . '" />' . "\n";
+			echo '<meta property="article:modified_time" content="' . esc_attr( get_the_modified_date( 'c' ) ) . '" />' . "\n";
+		}
+
+		// Twitter cards.
+		echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+		echo '<meta name="twitter:title" content="' . esc_attr( $title ) . '" />' . "\n";
+		echo '<meta name="twitter:description" content="' . esc_attr( $description ) . '" />' . "\n";
+		echo '<meta name="twitter:image" content="' . esc_url( $image ) . '" />' . "\n";
 	}
-
-	// Twitter cards.
-	echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
-	echo '<meta name="twitter:title" content="' . esc_attr( $title ) . '" />' . "\n";
-	echo '<meta name="twitter:description" content="' . esc_attr( $description ) . '" />' . "\n";
-	echo '<meta name="twitter:image" content="' . esc_url( $image ) . '" />' . "\n";
 
 	// Structured data (front page only): identifies the program to Google so
 	// "RCMI" is associated with the University of Houston, not the acronym alone.

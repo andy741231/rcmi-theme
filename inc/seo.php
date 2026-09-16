@@ -318,15 +318,48 @@ function rcmi_seo_head() {
 add_action( 'wp_head', 'rcmi_seo_head', 5 );
 
 function rcmi_seo_admin_menu() {
-	add_options_page(
-		__( 'RCMI SEO', 'rcmi' ),
-		__( 'RCMI SEO', 'rcmi' ),
-		'manage_options',
-		'rcmi-seo',
-		'rcmi_seo_settings_page'
-	);
+	// Group under the plugin's top-level RCMI Toolkit menu when it is
+	// registered (rcmi-toolkit adds it at admin_menu priority 5); fall back
+	// to Settings so this page still works if the plugin is deactivated.
+	if ( isset( $GLOBALS['admin_page_hooks']['rcmi-toolkit'] ) ) {
+		add_submenu_page(
+			'rcmi-toolkit',
+			__( 'RCMI SEO', 'rcmi' ),
+			__( 'SEO', 'rcmi' ),
+			'manage_options',
+			'rcmi-seo',
+			'rcmi_seo_settings_page'
+		);
+	} else {
+		add_options_page(
+			__( 'RCMI SEO', 'rcmi' ),
+			__( 'RCMI SEO', 'rcmi' ),
+			'manage_options',
+			'rcmi-seo',
+			'rcmi_seo_settings_page'
+		);
+	}
 }
-add_action( 'admin_menu', 'rcmi_seo_admin_menu' );
+// Priority 20: must run after rcmi-toolkit registers its menu at priority 5.
+add_action( 'admin_menu', 'rcmi_seo_admin_menu', 20 );
+
+/**
+ * Redirect the old "Settings → RCMI SEO" URL to the toolkit menu. Runs on
+ * admin_page_access_denied because the options-general.php URL 403s before
+ * admin_init fires.
+ */
+function rcmi_seo_redirect_legacy_url() {
+	global $pagenow;
+	if ( 'options-general.php' !== $pagenow || ! isset( $_GET['page'] ) || 'rcmi-seo' !== $_GET['page'] ) {
+		return;
+	}
+	if ( ! isset( $GLOBALS['admin_page_hooks']['rcmi-toolkit'] ) ) {
+		return; // SEO page still lives under Settings; let the 403 stand.
+	}
+	wp_safe_redirect( admin_url( 'admin.php?page=rcmi-seo' ) );
+	exit;
+}
+add_action( 'admin_page_access_denied', 'rcmi_seo_redirect_legacy_url' );
 
 function rcmi_seo_register_settings() {
 	register_setting( 'rcmi_seo', 'rcmi_seo_settings', array(
@@ -338,7 +371,12 @@ function rcmi_seo_register_settings() {
 add_action( 'admin_init', 'rcmi_seo_register_settings' );
 
 function rcmi_seo_admin_assets( $hook ) {
-	if ( 'settings_page_rcmi-seo' !== $hook ) {
+	global $pagenow;
+	// Match on the page query arg — the page may sit under the RCMI menu
+	// (admin.php) or Settings (options-general.php), and hook suffixes are
+	// derived from menu titles.
+	if ( ! in_array( $pagenow, array( 'admin.php', 'options-general.php' ), true )
+		|| ! isset( $_GET['page'] ) || 'rcmi-seo' !== $_GET['page'] ) {
 		return;
 	}
 	wp_enqueue_media();
@@ -358,6 +396,9 @@ function rcmi_seo_settings_page() {
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 		<?php settings_errors(); ?>
+		<?php if ( ! defined( 'RCMI_TOOLKIT_VERSION' ) ) : ?>
+			<div class="notice notice-warning"><p><?php esc_html_e( 'The RCMI Toolkit plugin is not active. SEO settings still work here, but the RCMI admin menu, custom blocks, and analytics need the rcmi-toolkit plugin installed and activated.', 'rcmi' ); ?></p></div>
+		<?php endif; ?>
 		<p>
 			<?php esc_html_e( 'These settings control site-wide search and social metadata. Titles and descriptions for individual posts and pages are edited in the Search Appearance (SEO) box on each post or page.', 'rcmi' ); ?>
 		</p>

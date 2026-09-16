@@ -294,6 +294,24 @@
 .editor-styles-wrapper .rcmi-cta-editor .btn-outline { background: transparent; border-color: #fff; color: #fff; }
 .editor-styles-wrapper .rcmi-cta-editor .btn-primary { background: #fff; border-color: #fff; color: var(--red); }
 
+/* === RCMI Section editor styles === */
+.editor-styles-wrapper .wp-block-rcmi-section.rcmi-section-editor,
+.editor-styles-wrapper .rcmi-section-editor {
+  width: 100%;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+}
+.editor-styles-wrapper .rcmi-section-editor { padding: 96px 0; }
+.editor-styles-wrapper .rcmi-section-editor.-tight { padding: 64px 0; }
+.editor-styles-wrapper .rcmi-section-editor.-flat { padding: 0; }
+.editor-styles-wrapper .rcmi-section-editor.bg-alt { background: #F4F5F5; }
+.editor-styles-wrapper .rcmi-section-editor.bg-primary { background: #C8102E; color: #fff; }
+.editor-styles-wrapper .rcmi-section-editor .wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--container-inline-padding); }
+.editor-styles-wrapper .rcmi-section-editor .wrap.-narrow { max-width: 820px; }
+.editor-styles-wrapper .rcmi-section-editor .wrap.-full { max-width: none; }
+
 /* === RCMI Impact Stats editor styles === */
 .editor-styles-wrapper .rcmi-impact-stats-editor { padding: 48px 0; }
 .editor-styles-wrapper .rcmi-impact-stats-editor .impact-stats-wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--container-inline-padding); }

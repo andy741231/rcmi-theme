@@ -8,6 +8,7 @@
  *   <a href="...">Home</a>
  *   <span class="mn-group">About</span>
  *   <a class="is-sub" href="...">Mission</a>
+ *   <a class="is-sub is-sub-sub" href="...">Third level</a>
  *   <a class="is-sub" href="...">Why We Exist</a>
  *   <a href="...">The Journey</a>
  *   <span class="mn-group">Resource</span>
@@ -60,7 +61,8 @@ class RCMI_Mobile_Nav_Walker extends Walker_Nav_Menu {
 	 *
 	 * Depth 0 with children   -> <span class="mn-group">Title</span>
 	 * Depth 0 without children -> <a href="...">Title</a>
-	 * Depth >= 1              -> <a class="is-sub" href="...">Title</a>
+	 * Depth 1                 -> <a class="is-sub" href="...">Title</a>
+	 * Depth >= 2              -> <a class="is-sub is-sub-sub" href="...">Title</a>
 	 *
 	 * @param string   $output Used to append additional content (passed by reference).
 	 * @param WP_Post  $item   Menu item data object.
@@ -82,8 +84,10 @@ class RCMI_Mobile_Nav_Walker extends Walker_Nav_Menu {
 				$output .= '<a' . $class . ' href="' . esc_url( $href ) . '">' . esc_html( $item->title ) . '</a>';
 			}
 		} else {
-			// Sub-item: indented link inside the mobile panel.
-			$class = $is_active ? ' class="is-sub is-active"' : ' class="is-sub"';
+			// Sub-item: indented link inside the mobile panel; depth 2+
+			// indents further via .is-sub-sub.
+			$sub   = $depth >= 2 ? ' is-sub-sub' : '';
+			$class = $is_active ? ' class="is-sub' . $sub . ' is-active"' : ' class="is-sub' . $sub . '"';
 			$output .= '<a' . $class . ' href="' . esc_url( $href ) . '">' . esc_html( $item->title ) . '</a>';
 		}
 	}

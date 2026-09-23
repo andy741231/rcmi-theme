@@ -292,12 +292,23 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   opacity:0; visibility:hidden; transform: translateY(6px);
   transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
 }
-.nav-links > li:hover .dropdown{ opacity:1; visibility:visible; transform: translateY(0); }
+.nav-links > li:hover > .dropdown, .nav-links > li:focus-within > .dropdown{ opacity:1; visibility:visible; transform: translateY(0); }
 .dropdown a{
   display:block; padding: 10px 12px; font-size: 0.9rem; font-weight:500; color: var(--color-fg);
   border-radius: var(--radius);
 }
 .dropdown a:hover{ background: var(--color-bg-alt); color: var(--color-primary); }
+
+/* Third-level (and deeper) flyout panels. .dd-item is the positioning context;
+   negative margins + matching padding extend it over the .dropdown's 10px
+   padding so there's no dead hover gap between the item and its flyout. */
+.dropdown .dd-item{ position:relative; margin: 0 -10px; padding: 0 10px; }
+.dropdown .dd-item > a{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.dropdown .dd-item > a svg{ width:10px; height:10px; opacity:0.6; flex:none; }
+.dropdown .dd-sub{ top:-11px; left:100%; min-width:220px; }
+.dropdown .dd-item:hover > .dd-sub, .dropdown .dd-item:focus-within > .dd-sub{ opacity:1; visibility:visible; transform: translateY(0); }
+/* Flyouts under the last two top-level items would clip the viewport — flip them left. */
+.nav-links > li:nth-last-child(-n+2) .dd-sub{ left:auto; right:100%; }
 .nav-cta{ display:flex; align-items:center; gap: var(--space-2); }
 .nav-cta .btn-outline{ border-color: var(--rcmi-header-text, #fff); color: var(--rcmi-header-text, #fff); }
 .nav-cta .btn-outline:hover{ background: var(--rcmi-header-text, #fff); color: var(--rcmi-header-bg, var(--color-primary)); }
@@ -337,6 +348,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .mobile-nav.is-open{ opacity:1; visibility:visible; transform:translateY(0); }
 .mobile-nav a{ padding:14px 4px; font-weight:600; font-size:1.05rem; color:var(--rcmi-header-text, #fff); border-bottom:1px solid color-mix(in srgb, var(--rcmi-header-text, #fff) 18%, transparent); }
 .mobile-nav a.is-sub{ padding-left:18px; font-weight:500; font-size:0.95rem; color: color-mix(in srgb, var(--rcmi-header-text, #fff) 78%, transparent); }
+.mobile-nav a.is-sub-sub{ padding-left:36px; font-weight:400; font-size:0.88rem; color: color-mix(in srgb, var(--rcmi-header-text, #fff) 60%, transparent); }
 .mobile-nav .mn-group{ margin-top: var(--space-2); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color: color-mix(in srgb, var(--rcmi-header-text, #fff) 60%, transparent); font-weight:700; padding: 6px 4px 0; }
 .mobile-nav .mn-cta{ display:flex; flex-direction:column; gap:10px; margin-top: var(--space-4); }
 .mobile-nav .mn-cta .btn-outline{ border-color:var(--rcmi-header-text, #fff); color:var(--rcmi-header-text, #fff); }

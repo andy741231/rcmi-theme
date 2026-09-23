@@ -861,7 +861,17 @@ function rcmi_default_nav_fallback( $args ) {
 		if ( ! empty( $item['children'] ) ) {
 			$out .= '<div class="dropdown">';
 			foreach ( $item['children'] as $child ) {
-				$out .= '<a href="' . esc_url( $child['url'] ) . '">' . esc_html( $child['title'] ) . '</a>';
+				if ( ! empty( $child['children'] ) ) {
+					$out .= '<div class="dd-item"><a href="' . esc_url( $child['url'] ) . '">' . esc_html( $child['title'] );
+					$out .= ' <svg viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></a>';
+					$out .= '<div class="dropdown dd-sub">';
+					foreach ( $child['children'] as $grandchild ) {
+						$out .= '<a href="' . esc_url( $grandchild['url'] ) . '">' . esc_html( $grandchild['title'] ) . '</a>';
+					}
+					$out .= '</div></div>';
+				} else {
+					$out .= '<a href="' . esc_url( $child['url'] ) . '">' . esc_html( $child['title'] ) . '</a>';
+				}
 			}
 			$out .= '</div>';
 		}
@@ -886,6 +896,11 @@ function rcmi_default_mobile_nav_fallback( $args ) {
 			$out .= '<span class="mn-group">' . esc_html( $item['title'] ) . '</span>';
 			foreach ( $item['children'] as $child ) {
 				$out .= '<a class="is-sub" href="' . esc_url( $child['url'] ) . '">' . esc_html( $child['title'] ) . '</a>';
+				if ( ! empty( $child['children'] ) ) {
+					foreach ( $child['children'] as $grandchild ) {
+						$out .= '<a class="is-sub is-sub-sub" href="' . esc_url( $grandchild['url'] ) . '">' . esc_html( $grandchild['title'] ) . '</a>';
+					}
+				}
 			}
 		} else {
 			$out .= '<a href="' . esc_url( $item['url'] ) . '">' . esc_html( $item['title'] ) . '</a>';
@@ -922,12 +937,22 @@ function rcmi_auto_create_primary_menu() {
 			) );
 			if ( ! empty( $item['children'] ) ) {
 				foreach ( $item['children'] as $child ) {
-					wp_update_nav_menu_item( $menu_id, 0, array(
+					$child_id = wp_update_nav_menu_item( $menu_id, 0, array(
 						'menu-item-title'     => $child['title'],
 						'menu-item-url'       => $child['url'],
 						'menu-item-status'    => 'publish',
 						'menu-item-parent-id' => $parent_id,
 					) );
+					if ( ! empty( $child['children'] ) ) {
+						foreach ( $child['children'] as $grandchild ) {
+							wp_update_nav_menu_item( $menu_id, 0, array(
+								'menu-item-title'     => $grandchild['title'],
+								'menu-item-url'       => $grandchild['url'],
+								'menu-item-status'    => 'publish',
+								'menu-item-parent-id' => $child_id,
+							) );
+						}
+					}
 				}
 			}
 		}

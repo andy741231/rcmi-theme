@@ -1343,7 +1343,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   display: none;
   align-items: center;
   width: 100%;
-  min-height: 80vh; /* Fallback; inline height from parent slide-block overrides this */
+  min-height: 30vh; /* Floor = control's minimum; parent slide-block sets inline min-height */
   background-size: 120%;
   background-position: 50% 50%;
   background-repeat: no-repeat;

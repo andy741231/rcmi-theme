@@ -491,6 +491,21 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  background: rgba(255,255,255,.85);
+  /* Empty-layer hints only show while the hero is being edited; both
+     labels center by default so offset them to avoid stacking. */
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.editor-styles-wrapper .rcmi-parallax-editor.is-selected .rcmi-layer-label,
+.editor-styles-wrapper .rcmi-parallax-editor.has-child-selected .rcmi-layer-label {
+  opacity: 1;
+}
+.editor-styles-wrapper .rcmi-parallax-layer-preview.is-empty:nth-child(2) .rcmi-layer-label {
+  transform: translateY(-120%);
+}
+.editor-styles-wrapper .rcmi-parallax-layer-preview.is-empty:nth-child(3) .rcmi-layer-label {
+  transform: translateY(120%);
 }
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-inner {
   position: relative;

@@ -49,7 +49,7 @@
   margin-right: 0;
   box-sizing: border-box;
   position: relative;
-  min-height: 520px;
+  min-height: 40vh;
   display: flex;
   align-items: center;
   padding: 0;
@@ -57,6 +57,12 @@
   color: var(--color-fg);
   overflow: visible;
   background: #f8f5ee;
+}
+/* Mirror the frontend mobile rule: below 900px the hero falls back to
+   content height with the setting acting only as a min-height floor,
+   so the narrow preview doesn't clip wrapped content. */
+@media (max-width: 900px){
+  .editor-styles-wrapper .rcmi-parallax-editor{ height: auto !important; }
 }
 .editor-styles-wrapper .rcmi-parallax-editor .hero-media {
   position: absolute;
@@ -140,7 +146,6 @@
 @media (max-width: 900px) {
   .editor-styles-wrapper .wp-block-rcmi-parallax.rcmi-parallax-editor.hero,
   .editor-styles-wrapper .rcmi-parallax-editor {
-    min-height: 0 !important;
     align-items: flex-start;
     padding-bottom: 0;
   }

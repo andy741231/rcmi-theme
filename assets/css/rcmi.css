@@ -1350,13 +1350,28 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   align-items: center;
   width: 100%;
   min-height: 30vh; /* Floor = control's minimum; parent slide-block sets inline min-height */
-  background-size: 120%;
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
   box-sizing: border-box;
   overflow: hidden;
 }
 .rcmi-slide.is-active{ display: flex; }
+/* Slide background <img> — oversized object-fit:cover box so the image
+   fills the slide at any aspect ratio (background-size:N% underfilled
+   vertically on narrow screens). Desktop values are inline; when a
+   dedicated mobile image is set, --rcmi-mobile-* vars override at
+   ≤767px (mirrors .rcmi-parallax-layer). */
+.rcmi-slide-bg{ z-index: 0; }
+.rcmi-slide-bg[data-mobile-only="1"]{ display: none; }
+@media (max-width: 767px){
+  .rcmi-slide-bg[data-mobile-only="1"]{ display: block; }
+  .rcmi-slide-bg[data-has-mobile="1"]{
+    width: var(--rcmi-mobile-scale, 110%) !important;
+    height: var(--rcmi-mobile-scale, 110%) !important;
+    object-fit: var(--rcmi-mobile-object-fit, cover) !important;
+    object-position: var(--rcmi-mobile-object-position, 50% 50%) !important;
+    --pos-x: var(--rcmi-mobile-pos-x, 0%) !important;
+    --pos-y: var(--rcmi-mobile-pos-y, 0%) !important;
+  }
+}
 .rcmi-slide-scrim{
   position: absolute;
   inset: 0;

@@ -603,6 +603,33 @@ function rcmi_story_progress() {
 }
 add_action( 'wp_body_open', 'rcmi_story_progress' );
 
+/**
+ * Allow .sas7bdat (SAS dataset) uploads in the Media Library.
+ * WordPress omits .sas7bdat from get_allowed_mime_types(); map it to
+ * application/octet-stream — the generic binary type finfo detects a SAS
+ * dataset as — so the real-MIME check in wp_check_filetype_and_ext() passes.
+ */
+function rcmi_allow_sas_upload_mimes( $mimes ) {
+	$mimes['sas7bdat'] = 'application/octet-stream';
+	return $mimes;
+}
+add_filter( 'upload_mimes', 'rcmi_allow_sas_upload_mimes' );
+
+/**
+ * Restore ext/type for .sas7bdat files when WP's finfo real-MIME verification
+ * rejects them anyway. Only fires when the extension check already failed —
+ * other types untouched.
+ */
+function rcmi_sas_check_filetype_and_ext( $data, $file, $filename, $mimes ) {
+	if ( ! empty( $data['ext'] ) || 'sas7bdat' !== strtolower( pathinfo( (string) $filename, PATHINFO_EXTENSION ) ) ) {
+		return $data;
+	}
+	$data['ext']  = 'sas7bdat';
+	$data['type'] = 'application/octet-stream';
+	return $data;
+}
+add_filter( 'wp_check_filetype_and_ext', 'rcmi_sas_check_filetype_and_ext', 10, 4 );
+
 // ============================================================================
 // Dynamic site header block (rcmi/site-header)
 // Renders the site header + mobile nav from the "primary" WordPress nav menu

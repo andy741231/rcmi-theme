@@ -7,7 +7,9 @@
  *  - useBlockProps wrapper (required for apiVersion 3 so the block is
  *    selectable/clickable in the editor canvas)
  *  - InspectorControls with color pickers, style toggles, and logo text fields
- *  - ServerSideRender preview that receives the current attributes
+ *  - Live server-rendered previews via RCMIServerSideRender, a POST-based
+ *    ServerSideRender replacement (rcmi/v1/block-preview) that avoids the
+ *    IIS request-filtering URL-length limit on the GET block-renderer route
  *
  * The actual menus are managed via Appearance > Menus.
  */
@@ -17,6 +19,10 @@
   var ServerSideRender = wp.serverSideRender
     ? (wp.serverSideRender.ServerSideRender || wp.serverSideRender)
     : wp.components.ServerSideRender;
+  var useState = wp.element.useState;
+  var useEffect = wp.element.useEffect;
+  var RawHTML = wp.element.RawHTML;
+  var apiFetch = wp.apiFetch;
   var InspectorControls = wp.blockEditor.InspectorControls;
   var useBlockProps = wp.blockEditor.useBlockProps;
   var MediaUpload = wp.blockEditor.MediaUpload;
@@ -312,6 +318,45 @@
   }
 
   // ============================================================
+  // POST-based ServerSideRender replacement. Core's block-renderer
+  // route is GET-only, so attributes serialize into the query string —
+  // large attributes (the footer's legal-links list) produce URLs past
+  // IIS's request-filtering limits and the preview 404s on production.
+  // This posts attributes to the theme's rcmi/v1/block-preview route.
+  // ============================================================
+  function RCMIServerSideRender(props) {
+    var renderedState = useState(null);
+    var rendered = renderedState[0];
+    var setRendered = renderedState[1];
+    var errorState = useState('');
+    var error = errorState[0];
+    var setError = errorState[1];
+    var attrsKey = JSON.stringify(props.attributes);
+    useEffect(function () {
+      var cancelled = false;
+      var timer = setTimeout(function () {
+        apiFetch({
+          path: '/rcmi/v1/block-preview/' + props.block,
+          method: 'POST',
+          data: { attributes: props.attributes, post_id: props.postId || 0 }
+        }).then(function (res) {
+          if (!cancelled) { setRendered(res && res.rendered ? res.rendered : ''); setError(''); }
+        }).catch(function (e) {
+          if (!cancelled) { setError((e && e.message) || __('Error loading preview.', 'rcmi')); }
+        });
+      }, 250);
+      return function () { cancelled = true; clearTimeout(timer); };
+    }, [props.block, attrsKey]);
+    if (error) {
+      return el('div', { className: 'rcmi-ssr-error' }, error);
+    }
+    if (rendered === null) {
+      return el('div', { className: 'rcmi-ssr-loading' }, __('Loading preview…', 'rcmi'));
+    }
+    return el(RawHTML, null, rendered);
+  }
+
+  // ============================================================
   // Helper: build the edit function for a dynamic block with
   // InspectorControls and a useBlockProps-wrapped ServerSideRender.
   // ============================================================
@@ -362,7 +407,7 @@
       return [
         el(InspectorControls, null, panelEls),
         el('div', blockProps,
-          el(ServerSideRender, { block: blockName, attributes: attrs })
+          el(RCMIServerSideRender, { block: blockName, attributes: attrs, postId: props.context && props.context.postId })
         )
       ];
     };

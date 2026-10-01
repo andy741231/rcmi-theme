@@ -46,6 +46,12 @@ https://wordpress.org/documentation/article/twenty-twenty-five-changelog/#Versio
 
 == RCMI Customizations ==
 
+Editor previews for the rcmi/site-header and rcmi/site-footer blocks
+render through a POST endpoint (rcmi/v1/block-preview) instead of core's
+GET-only block-renderer route — large attributes (the footer's legal
+links list) otherwise exceed IIS request-filtering URL limits and the
+Site Editor shows "error loading block" on the production host.
+
 Hero headings match the UH display style: League Gothic 400 uppercase,
 line-height 1, letter-spacing -0.015625em. The size scale is
 48px below 768px, 72px from 768px-991.99px, and 100px at 992px and up,

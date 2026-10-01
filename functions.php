@@ -406,7 +406,7 @@ function rcmi_editor_assets() {
 	wp_enqueue_script(
 		'rcmi-site-header-block',
 		get_template_directory_uri() . '/assets/js/site-header-block.js',
-		array( 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-components', 'wp-i18n', 'wp-server-side-render' ),
+		array( 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-components', 'wp-i18n', 'wp-api-fetch', 'wp-server-side-render' ),
 		rcmi_asset_version( get_template_directory() . '/assets/js/site-header-block.js' ),
 		true
 	);
@@ -1224,6 +1224,71 @@ function rcmi_default_footer_nav_fallback( $args ) {
 		$out .= '</div>';
 	}
 	return $out;
+}
+
+// ============================================================================
+// POST block-preview endpoint for the editor's ServerSideRender previews.
+// Core's wp/v2/block-renderer route is GET-only, so block attributes (e.g.
+// the footer's legal-links list) serialize into the query string — on the
+// production IIS host the resulting URL exceeds the default request-filtering
+// limits (maxQueryString 2048) and the preview 404s before reaching WP.
+// POSTing the attributes in the request body avoids URL-length limits.
+// ============================================================================
+
+/**
+ * Register the block-preview REST route.
+ */
+function rcmi_register_block_preview_route() {
+	register_rest_route( 'rcmi/v1', '/block-preview/(?P<name>[a-z0-9-]+/[a-z0-9-]+)', array(
+		'methods'             => 'POST',
+		'callback'            => 'rcmi_rest_block_preview',
+		'permission_callback' => 'rcmi_rest_block_preview_permissions',
+		'args'                => array(
+			'attributes' => array( 'type' => 'object', 'default' => array() ),
+			'post_id'    => array( 'type' => 'integer', 'default' => 0 ),
+		),
+	) );
+}
+add_action( 'rest_api_init', 'rcmi_register_block_preview_route' );
+
+/**
+ * Mirror core's block-renderer permission: editing a specific post when
+ * post_id is supplied, otherwise any editor/site-editor user.
+ *
+ * @param WP_REST_Request $request REST request.
+ * @return bool
+ */
+function rcmi_rest_block_preview_permissions( WP_REST_Request $request ) {
+	$post_id = (int) $request->get_param( 'post_id' );
+	if ( $post_id ) {
+		return current_user_can( 'edit_post', $post_id );
+	}
+	return current_user_can( 'edit_posts' ) || current_user_can( 'edit_theme_options' );
+}
+
+/**
+ * Render a registered theme dynamic block from POSTed attributes.
+ *
+ * @param WP_REST_Request $request REST request.
+ * @return WP_REST_Response|WP_Error
+ */
+function rcmi_rest_block_preview( WP_REST_Request $request ) {
+	$name = $request->get_param( 'name' );
+	if ( ! in_array( $name, array( 'rcmi/site-header', 'rcmi/site-footer' ), true ) ) {
+		return new WP_Error( 'rcmi_block_preview_not_found', __( 'Block is not previewable.', 'rcmi' ), array( 'status' => 404 ) );
+	}
+	$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $name );
+	if ( ! $block_type || ! is_callable( $block_type->render_callback ) ) {
+		return new WP_Error( 'rcmi_block_preview_not_found', __( 'Block is not server-rendered.', 'rcmi' ), array( 'status' => 404 ) );
+	}
+	$block = new WP_Block( array(
+		'blockName'    => $name,
+		'attrs'        => (array) $request->get_param( 'attributes' ),
+		'innerBlocks'  => array(),
+		'innerHTML'    => '',
+		'innerContent' => array(),
+	) );
+	return new WP_REST_Response( array( 'rendered' => $block->render() ) );
 }
 
 /**

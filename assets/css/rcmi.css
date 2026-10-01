@@ -377,7 +377,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .footer-legal{ margin-top: var(--space-3); padding-top: var(--space-2); border-top: 1px solid color-mix(in srgb, var(--rcmi-footer-text, #fff) 15%, transparent); }
 .footer-legal ul{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; justify-content:center; gap: 0px 0px; }
 .footer-legal li{ display:inline-flex; align-items:center; }
-.footer-legal li+li::before{ content:'·'; margin-right: var(--space-2); color: color-mix(in srgb, var(--rcmi-footer-text, #fff) 40%, transparent); }
+.footer-legal li+li::before{ content:''; margin-right: var(--space-2); color: color-mix(in srgb, var(--rcmi-footer-text, #fff) 40%, transparent); }
 .footer-legal a{ color: color-mix(in srgb, var(--rcmi-footer-text, #fff) 65%, transparent); font-size: 0.78rem; transition: color var(--transition); }
 .footer-legal a:hover{ color: var(--rcmi-footer-accent, #fff); }
 

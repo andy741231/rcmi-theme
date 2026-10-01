@@ -44,6 +44,31 @@ https://wordpress.org/documentation/article/twenty-twenty-five-changelog/#Versio
 
 https://wordpress.org/documentation/article/twenty-twenty-five-changelog/#Version_1.0
 
+== RCMI Customizations ==
+
+Hero headings match the UH display style: League Gothic 400 uppercase,
+line-height 1, letter-spacing -0.015625em. The size scale is
+48px below 768px, 72px from 768px-991.99px, and 100px at 992px and up,
+driven by the --rcmi-hero-font-size custom property on .hero-copy /
+.rcmi-parallax-copy (frontend) and their .rcmi-parallax-editor
+equivalents in assets/css/editor.css.
+
+A narrowly scoped compatibility block keeps the saved Hero preset markup
+working: only an h1 inline font-size of exactly "3.75rem" (plus the saved
+line-height: 0.8 span, .has-display-font letter-spacing, and <strong>
+weight) inside hero copy is remapped to the scale. Other inline sizes and
+non-hero headings are untouched.
+
+Regression checks (require the puppeteer npm package — point NODE_PATH
+at a node_modules that contains it; no install needed):
+  NODE_PATH=/path/to/node_modules node tests/hero-typography.cjs
+      Offline computed-style checks with fixtures injected into a
+      local DOM (no DB).
+  NODE_PATH=/path/to/node_modules node tests/hero-visual-check.cjs
+      Live check against the local dev site (BASE=http://localhost:8000
+      by default) — real fonts, screenshots, computed values, and a
+      report of any non-preset inline overrides inside the hero h1.
+
 == Copyright ==
 
 Twenty Twenty-Five WordPress Theme, (C) 2024-2026 WordPress.org and contributors.

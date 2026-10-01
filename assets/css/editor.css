@@ -94,15 +94,26 @@
 .editor-styles-wrapper .rcmi-parallax-editor .hero-copy {
   grid-column: 1 / 7;
 }
+/* Mirror frontend hero heading scale — see rcmi.css. */
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy,
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy { --rcmi-hero-font-size: 3rem; }
+@media (min-width: 768px) {
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy { --rcmi-hero-font-size: 4.5rem; }
+}
+@media (min-width: 992px) {
+  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy,
+  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy { --rcmi-hero-font-size: 6.25rem; }
+}
 .editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1 {
   max-width: 570px;
   margin-bottom: 10px;
-  font-family: var(--font-serif);
-  font-size: 3.75rem;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: -0.025em;
-  line-height: 0.98;
+  font-family: var(--font-display);
+  font-size: var(--rcmi-hero-font-size);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.015625em;
+  line-height: 1;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .eyebrow {
   display: block;
@@ -165,7 +176,6 @@
   .editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1,
   .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
     max-width: 100%;
-    font-size: clamp(2.15rem, 9vw, 3.5rem);
     overflow-wrap: anywhere;
   }
   .editor-styles-wrapper .rcmi-parallax-editor .hero-copy .lede,
@@ -178,10 +188,6 @@
   .editor-styles-wrapper .rcmi-parallax-editor .hero-inner,
   .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-inner {
     padding: 56px var(--container-inline-padding) 72px;
-  }
-  .editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1,
-  .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
-    font-size: clamp(2rem, 8.5vw, 2.8rem);
   }
   .editor-styles-wrapper .rcmi-parallax-editor .hero-copy .lede,
   .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy .lede {
@@ -580,11 +586,30 @@
 }
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 {
   margin-bottom: 10px;
-  font-family: var(--font-serif);
-  font-size: 3.75rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 0.98;
+  font-family: var(--font-display);
+  font-size: var(--rcmi-hero-font-size);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.015625em;
+  line-height: 1;
+}
+/* Compatibility for the saved Hero preset markup only — mirrors the
+   frontend rules in rcmi.css so the editor preview matches. */
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1 .has-inline-font-size[style="font-size: 3.75rem"],
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 .has-inline-font-size[style="font-size: 3.75rem"] {
+  font-size: var(--rcmi-hero-font-size) !important;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1 .has-display-font,
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 .has-display-font {
+  letter-spacing: inherit;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1 .has-inline-line-height[style="line-height: 0.8"],
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 .has-inline-line-height[style="line-height: 0.8"] {
+  line-height: inherit !important;
+}
+.editor-styles-wrapper .rcmi-parallax-editor .hero-copy h1 strong,
+.editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy h1 strong {
+  font-weight: inherit;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .eyebrow {
   display: block; margin-bottom: 12px;

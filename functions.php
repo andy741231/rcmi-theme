@@ -1012,6 +1012,8 @@ function rcmi_register_site_footer_block() {
 			'borderTop'       => array( 'type' => 'boolean', 'default' => false ),
 			'showMenu'        => array( 'type' => 'boolean', 'default' => true ),
 			'showBrand'       => array( 'type' => 'boolean', 'default' => true ),
+			'showLegalLinks'  => array( 'type' => 'boolean', 'default' => true ),
+			'legalLinks'      => array( 'type' => 'array', 'default' => rcmi_default_legal_links() ),
 			'logoMark'        => array( 'type' => 'string', 'default' => 'RC' ),
 			'logoText'        => array( 'type' => 'string', 'default' => 'RCMI' ),
 			'footerText'      => array( 'type' => 'string', 'default' => 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' ),
@@ -1021,6 +1023,32 @@ function rcmi_register_site_footer_block() {
 	) );
 }
 add_action( 'init', 'rcmi_register_site_footer_block' );
+
+/**
+ * Default legal/compliance links for the bottom-of-footer bar — the
+ * Texas-mandated / UH-required set. Editable per footer instance via the
+ * block's "Legal links" panel; an empty list hides the bar.
+ *
+ * @return array[]
+ */
+function rcmi_default_legal_links() {
+	return array(
+		array( 'text' => 'Report a problem with this page', 'link' => 'https://www.uh.edu/web-update/report-a-problem/index.php?external' ),
+		array( 'text' => 'Texas.gov', 'link' => 'https://www.texas.gov/' ),
+		array( 'text' => 'Texas Homeland Security', 'link' => 'https://gov.texas.gov/organization/hsgd' ),
+		array( 'text' => 'TRAIL', 'link' => 'https://www.tsl.texas.gov/trail/index.html' ),
+		array( 'text' => 'Fraud Reporting', 'link' => 'https://sao.fraud.texas.gov/ReportFraud/' ),
+		array( 'text' => 'Fraud & Non-Compliance Hotline', 'link' => 'https://www.uhsystem.edu/fraud-non-compliance/' ),
+		array( 'text' => 'Linking Notice', 'link' => 'https://www.sos.state.tx.us/linkpolicy.shtml' ),
+		array( 'text' => 'Privacy Notice', 'link' => 'https://uhsystem.edu/privacy-notice/' ),
+		array( 'text' => 'Open Records/Public Information Act', 'link' => 'https://uhsystem.edu/offices/legal-affairs/general-counsel/public-information-act/' ),
+		array( 'text' => 'Institutional Résumé', 'link' => 'https://apps.highered.texas.gov/index.cfm?page=44D8EA89B7EF3E9BBAB50F71E96AAA13' ),
+		array( 'text' => 'Required Reports', 'link' => 'https://www.uh.edu/office-of-finance/required-reports/index.php' ),
+		array( 'text' => 'Electronic & Information Resources Accessibility', 'link' => 'https://www.uh.edu/equal-opportunity/eir-accessibility/' ),
+		array( 'text' => 'Discrimination and Sexual Misconduct Reporting and Awareness', 'link' => 'https://www.uh.edu/sexual-misconduct-reporting-form/' ),
+		array( 'text' => 'University Policies', 'link' => 'https://www.uh.edu/policies/' ),
+	);
+}
 
 /**
  * Default menu items used to seed the Footer Menu on theme activation and to
@@ -1139,12 +1167,32 @@ function rcmi_render_site_footer_block( $attributes = array() ) {
 	$bottom .= '<span>' . esc_html( $copyright ) . '</span>';
 	$bottom .= '</div>';
 
+	// Legal/compliance links bar (defaults to the Texas-mandated UH set).
+	$show_legal = isset( $attributes['showLegalLinks'] ) ? (bool) $attributes['showLegalLinks'] : true;
+	$legal      = '';
+	if ( $show_legal ) {
+		$legal_links = isset( $attributes['legalLinks'] ) && is_array( $attributes['legalLinks'] ) ? $attributes['legalLinks'] : rcmi_default_legal_links();
+		$items       = '';
+		foreach ( $legal_links as $l ) {
+			$text = isset( $l['text'] ) ? trim( (string) $l['text'] ) : '';
+			$url  = isset( $l['link'] ) ? trim( (string) $l['link'] ) : '';
+			if ( '' === $text || '' === $url ) {
+				continue;
+			}
+			$items .= '<li><a href="' . esc_url( $url ) . '">' . esc_html( $text ) . '</a></li>';
+		}
+		if ( '' !== $items ) {
+			$legal = '<nav class="footer-legal" aria-label="' . esc_attr__( 'Legal and compliance links', 'rcmi' ) . '"><ul>' . $items . '</ul></nav>';
+		}
+	}
+
 	$output  = '<footer class="' . $footer_class . '"' . $footer_style . '>';
 	$output .= '<div class="wrap">';
 	if ( '' !== $brand . $columns ) {
 		$output .= '<div class="footer-top">' . $brand . $columns . '</div>';
 	}
 	$output .= $bottom;
+	$output .= $legal;
 	$output .= '</div>';
 	$output .= '</footer>';
 

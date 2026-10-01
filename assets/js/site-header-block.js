@@ -228,6 +228,90 @@
   }
 
   // ============================================================
+  // Links repeater — simple {text, link} pairs (footer legal bar).
+  // ============================================================
+  function renderLinksRepeater(links, setAttributes, attrName) {
+    links = links || [];
+    function updateLink(idx, key, val) {
+      var next = links.slice();
+      next[idx] = Object.assign({}, next[idx]);
+      next[idx][key] = val;
+      var u = {}; u[attrName] = next; setAttributes(u);
+    }
+    function removeLink(idx) {
+      var next = links.slice();
+      next.splice(idx, 1);
+      var u = {}; u[attrName] = next; setAttributes(u);
+    }
+    function addLink() {
+      var next = links.slice();
+      next.push({ text: '', link: '' });
+      var u = {}; u[attrName] = next; setAttributes(u);
+    }
+    function moveLink(idx, dir) {
+      var target = idx + dir;
+      if (target < 0 || target >= links.length) return;
+      var next = links.slice();
+      var tmp = next[idx]; next[idx] = next[target]; next[target] = tmp;
+      var u = {}; u[attrName] = next; setAttributes(u);
+    }
+
+    var rows = links.map(function (lnk, idx) {
+      return el('div', {
+        key: 'link-' + idx,
+        style: { padding: '10px', marginBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '4px', background: '#fafafa' }
+      },
+        el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } },
+          el('strong', { style: { fontSize: '11px' } }, __('Link ' + (idx + 1), 'rcmi')),
+          el('div', { style: { display: 'flex', gap: '2px' } },
+            el(Button, {
+              icon: 'arrow-up-alt2',
+              label: __('Move up', 'rcmi'),
+              isSmall: true, isTertiary: true,
+              disabled: idx === 0,
+              onClick: function () { moveLink(idx, -1); }
+            }),
+            el(Button, {
+              icon: 'arrow-down-alt2',
+              label: __('Move down', 'rcmi'),
+              isSmall: true, isTertiary: true,
+              disabled: idx === links.length - 1,
+              onClick: function () { moveLink(idx, 1); }
+            }),
+            el(Button, {
+              icon: 'trash',
+              label: __('Remove', 'rcmi'),
+              isSmall: true, isTertiary: true, isDestructive: true,
+              onClick: function () { removeLink(idx); }
+            })
+          )
+        ),
+        el(TextControl, {
+          label: __('Text', 'rcmi'),
+          value: lnk.text || '',
+          onChange: function (val) { updateLink(idx, 'text', val); }
+        }),
+        el(TextControl, {
+          label: __('URL', 'rcmi'),
+          value: lnk.link || '',
+          onChange: function (val) { updateLink(idx, 'link', val); }
+        })
+      );
+    });
+
+    rows.push(el(Button, {
+      key: 'add-link',
+      icon: 'plus',
+      variant: 'secondary',
+      isSmall: true,
+      onClick: addLink,
+      style: { width: '100%', justifyContent: 'center', marginTop: '4px' }
+    }, __('Add link', 'rcmi')));
+
+    return el('div', null, rows);
+  }
+
+  // ============================================================
   // Helper: build the edit function for a dynamic block with
   // InspectorControls and a useBlockProps-wrapped ServerSideRender.
   // ============================================================
@@ -266,6 +350,9 @@
           }
           if (ctrl.type === 'buttons') {
             return renderButtonsRepeater(attrs[ctrl.attr], setAttributes);
+          }
+          if (ctrl.type === 'links') {
+            return renderLinksRepeater(attrs[ctrl.attr], setAttributes, ctrl.attr);
           }
           return null;
         });
@@ -370,6 +457,26 @@
       borderTop: { type: 'boolean', default: false },
       showMenu: { type: 'boolean', default: true },
       showBrand: { type: 'boolean', default: true },
+      showLegalLinks: { type: 'boolean', default: true },
+      legalLinks: {
+        type: 'array',
+        default: [
+          { text: 'Report a problem with this page', link: 'https://www.uh.edu/web-update/report-a-problem/index.php?external' },
+          { text: 'Texas.gov', link: 'https://www.texas.gov/' },
+          { text: 'Texas Homeland Security', link: 'https://gov.texas.gov/organization/hsgd' },
+          { text: 'TRAIL', link: 'https://www.tsl.texas.gov/trail/index.html' },
+          { text: 'Fraud Reporting', link: 'https://sao.fraud.texas.gov/ReportFraud/' },
+          { text: 'Fraud & Non-Compliance Hotline', link: 'https://www.uhsystem.edu/fraud-non-compliance/' },
+          { text: 'Linking Notice', link: 'https://www.sos.state.tx.us/linkpolicy.shtml' },
+          { text: 'Privacy Notice', link: 'https://uhsystem.edu/privacy-notice/' },
+          { text: 'Open Records/Public Information Act', link: 'https://uhsystem.edu/offices/legal-affairs/general-counsel/public-information-act/' },
+          { text: 'Institutional Résumé', link: 'https://apps.highered.texas.gov/index.cfm?page=44D8EA89B7EF3E9BBAB50F71E96AAA13' },
+          { text: 'Required Reports', link: 'https://www.uh.edu/office-of-finance/required-reports/index.php' },
+          { text: 'Electronic & Information Resources Accessibility', link: 'https://www.uh.edu/equal-opportunity/eir-accessibility/' },
+          { text: 'Discrimination and Sexual Misconduct Reporting and Awareness', link: 'https://www.uh.edu/sexual-misconduct-reporting-form/' },
+          { text: 'University Policies', link: 'https://www.uh.edu/policies/' }
+        ]
+      },
       logoMark: { type: 'string', default: 'RC' },
       logoText: { type: 'string', default: 'RCMI' },
       footerText: { type: 'string', default: 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' },
@@ -386,7 +493,14 @@
         title: __('Sections', 'rcmi'), open: true,
         controls: [
           { type: 'toggle', label: __('Show logo & text', 'rcmi'), help: __('Show the brand column (logo and description).', 'rcmi'), attr: 'showBrand' },
-          { type: 'toggle', label: __('Show footer menu', 'rcmi'), help: __('Show the footer navigation columns.', 'rcmi'), attr: 'showMenu' }
+          { type: 'toggle', label: __('Show footer menu', 'rcmi'), help: __('Show the footer navigation columns.', 'rcmi'), attr: 'showMenu' },
+          { type: 'toggle', label: __('Show legal links', 'rcmi'), help: __('Show the legal/compliance links bar at the very bottom.', 'rcmi'), attr: 'showLegalLinks' }
+        ]
+      },
+      {
+        title: __('Legal links', 'rcmi'), open: false,
+        controls: [
+          { type: 'links', attr: 'legalLinks' }
         ]
       },
       {

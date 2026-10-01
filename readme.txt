@@ -52,6 +52,14 @@ GET-only block-renderer route — large attributes (the footer's legal
 links list) otherwise exceed IIS request-filtering URL limits and the
 Site Editor shows "error loading block" on the production host.
 
+Hero/parallax section height (the block's viewport-% setting) is exact:
+the markup emits height + min-height, .rcmi-parallax and .hero are
+border-box, and there is no mobile height:auto fallback. Content taller
+than the vh share is clipped on the frontend (parallax) or overflows
+visibly (static .hero) — raise the height or shorten the content if
+that matters; in the editor .rcmi-parallax-inner is capped at the
+section height and scrolls internally so all blocks stay reachable.
+
 Hero headings match the UH display style: League Gothic 400 uppercase,
 line-height 1, letter-spacing -0.015625em. The size scale is
 48px below 768px, 72px from 768px-991.99px, and 100px at 992px and up,

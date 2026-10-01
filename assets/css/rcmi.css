@@ -470,6 +470,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   position: relative;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
   overflow: hidden;
   color: var(--color-fg);
   background: #f8f5ee;
@@ -518,13 +519,11 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   box-sizing: border-box;
 }
 .rcmi-parallax-copy{ max-width: 570px; }
-/* Hero height is a fixed vh on desktop (inline height+min-height from the
-   block's Section height setting). On small screens the fixed vh would clip
-   wrapped content, so fall back to content height with the setting as floor —
-   same pattern as .rcmi-slide. */
-@media (max-width: 900px){
-  .rcmi-parallax, .hero{ height: auto !important; }
-}
+/* Section height is always exact: the block emits height+min-height
+   (the vh setting), so the section box is the vh value at every width.
+   Content taller than the vh height is clipped by .rcmi-parallax's
+   overflow:hidden (.hero leaves it visible) — increase the height or
+   shorten the content if clipping is unwanted. */
 /* Content alignment for hero/parallax block.
    Only changes the horizontal position of the content block —
    text alignment within is controlled by the individual blocks

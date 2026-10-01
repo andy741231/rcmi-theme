@@ -368,6 +368,8 @@
       textColor: { type: 'string', default: '' },
       accentColor: { type: 'string', default: '' },
       borderTop: { type: 'boolean', default: false },
+      showMenu: { type: 'boolean', default: true },
+      showBrand: { type: 'boolean', default: true },
       logoMark: { type: 'string', default: 'RC' },
       logoText: { type: 'string', default: 'RCMI' },
       footerText: { type: 'string', default: 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' },
@@ -380,6 +382,13 @@
       align: false
     },
     edit: makeEdit('rcmi/site-footer', [
+      {
+        title: __('Sections', 'rcmi'), open: true,
+        controls: [
+          { type: 'toggle', label: __('Show logo & text', 'rcmi'), help: __('Show the brand column (logo and description).', 'rcmi'), attr: 'showBrand' },
+          { type: 'toggle', label: __('Show footer menu', 'rcmi'), help: __('Show the footer navigation columns.', 'rcmi'), attr: 'showMenu' }
+        ]
+      },
       {
         title: __('Logo & Text', 'rcmi'), open: true,
         controls: [

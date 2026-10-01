@@ -1010,6 +1010,8 @@ function rcmi_register_site_footer_block() {
 			'textColor'       => array( 'type' => 'string', 'default' => '' ),
 			'accentColor'     => array( 'type' => 'string', 'default' => '' ),
 			'borderTop'       => array( 'type' => 'boolean', 'default' => false ),
+			'showMenu'        => array( 'type' => 'boolean', 'default' => true ),
+			'showBrand'       => array( 'type' => 'boolean', 'default' => true ),
 			'logoMark'        => array( 'type' => 'string', 'default' => 'RC' ),
 			'logoText'        => array( 'type' => 'string', 'default' => 'RCMI' ),
 			'footerText'      => array( 'type' => 'string', 'default' => 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.' ),
@@ -1101,24 +1103,34 @@ function rcmi_render_site_footer_block( $attributes = array() ) {
 	}
 	$footer_class = esc_attr( implode( ' ', $classes ) );
 
+	// Section visibility toggles (default on for existing instances).
+	$show_menu  = isset( $attributes['showMenu'] ) ? (bool) $attributes['showMenu'] : true;
+	$show_brand = isset( $attributes['showBrand'] ) ? (bool) $attributes['showBrand'] : true;
+
 	// Brand column (footer chrome, not part of the nav menu).
-	$logo_mark   = isset( $attributes['logoMark'] ) ? $attributes['logoMark'] : 'RC';
-	$logo_text   = isset( $attributes['logoText'] ) ? $attributes['logoText'] : 'RCMI';
-	$footer_desc = isset( $attributes['footerText'] ) ? $attributes['footerText'] : 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.';
-	$brand  = '<div class="footer-brand">';
-	$brand .= '<a href="' . esc_url( $home_url ) . '" class="nav-logo"><span class="mark">' . esc_html( $logo_mark ) . '</span>' . esc_html( $logo_text ) . '</a>';
-	$brand .= '<p>' . esc_html( $footer_desc ) . '</p>';
-	$brand .= '</div>';
+	$brand = '';
+	if ( $show_brand ) {
+		$logo_mark   = isset( $attributes['logoMark'] ) ? $attributes['logoMark'] : 'RC';
+		$logo_text   = isset( $attributes['logoText'] ) ? $attributes['logoText'] : 'RCMI';
+		$footer_desc = isset( $attributes['footerText'] ) ? $attributes['footerText'] : 'Research Capacity & Mentoring Institute — building research capacity, developing investigators, and partnering with communities to improve chronic disease outcomes.';
+		$brand  = '<div class="footer-brand">';
+		$brand .= '<a href="' . esc_url( $home_url ) . '" class="nav-logo"><span class="mark">' . esc_html( $logo_mark ) . '</span>' . esc_html( $logo_text ) . '</a>';
+		$brand .= '<p>' . esc_html( $footer_desc ) . '</p>';
+		$brand .= '</div>';
+	}
 
 	// Footer link columns (.footer-col per top-level menu item).
-	$columns = wp_nav_menu( array(
-		'theme_location' => 'footer',
-		'walker'         => new RCMI_Footer_Walker(),
-		'container'      => false,
-		'items_wrap'     => '%3$s',
-		'fallback_cb'    => 'rcmi_default_footer_nav_fallback',
-		'echo'           => false,
-	) );
+	$columns = '';
+	if ( $show_menu ) {
+		$columns = wp_nav_menu( array(
+			'theme_location' => 'footer',
+			'walker'         => new RCMI_Footer_Walker(),
+			'container'      => false,
+			'items_wrap'     => '%3$s',
+			'fallback_cb'    => 'rcmi_default_footer_nav_fallback',
+			'echo'           => false,
+		) );
+	}
 
 	// Footer bottom bar (copyright text, {year} replaced dynamically).
 	$copyright_raw = isset( $attributes['copyrightText'] ) ? $attributes['copyrightText'] : '© {year} UH RCMI';
@@ -1129,7 +1141,9 @@ function rcmi_render_site_footer_block( $attributes = array() ) {
 
 	$output  = '<footer class="' . $footer_class . '"' . $footer_style . '>';
 	$output .= '<div class="wrap">';
-	$output .= '<div class="footer-top">' . $brand . $columns . '</div>';
+	if ( '' !== $brand . $columns ) {
+		$output .= '<div class="footer-top">' . $brand . $columns . '</div>';
+	}
 	$output .= $bottom;
 	$output .= '</div>';
 	$output .= '</footer>';

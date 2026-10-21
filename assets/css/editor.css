@@ -58,10 +58,9 @@
   overflow: visible;
   background: #f8f5ee;
 }
-/* Section height is exact at every width — the frontend sets
-   height+min-height inline, so no mobile height:auto override here.
-   Taller-than-vh content scrolls inside .rcmi-parallax-inner (below)
-   instead of growing the section or being cropped. */
+/* Section height is a minimum at every width — the frontend emits
+   only min-height inline, so the section grows to fit taller content
+   instead of cropping it. */
 .editor-styles-wrapper .rcmi-parallax-editor .hero-media {
   position: absolute;
   inset: 0;
@@ -512,11 +511,10 @@
 .editor-styles-wrapper .rcmi-parallax-layer-preview.is-empty:nth-child(3) .rcmi-layer-label {
   transform: translateY(120%);
 }
-/* Editor only: the section is exactly N vh (inline height), so content
-   taller than the viewport share must stay reachable — cap the inner
-   wrapper at the section height and let it scroll internally. The flex
-   item never exceeds the section, so centered alignment can't push its
-   top above the clip edge; scrollTop 0 always shows the first block. */
+/* Editor only: the section uses inline min-height (the vh setting) and
+   grows with taller content like the frontend. The inner wrapper keeps
+   a max-height cap + scroll as a fallback in case a fixed height is
+   ever reintroduced. */
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-inner {
   max-height: 100%;
   min-height: 0;
@@ -527,7 +525,7 @@
   max-width: var(--container-max);
   margin-left: auto;
   margin-right: auto;
-  padding: 40px var(--container-inline-padding);
+  padding: 96px var(--container-inline-padding);
   box-sizing: border-box;
 }
 .editor-styles-wrapper .rcmi-parallax-editor .rcmi-parallax-copy { max-width: 570px; }
@@ -749,7 +747,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: var(--rcmi-slide-height, 320px);
+  min-height: var(--rcmi-slide-height, 320px);
   background-size: 120%;
   background-position: 50% 50%;
   background-repeat: no-repeat;
@@ -769,8 +767,16 @@
   max-width: var(--container-max);
   margin-left: auto;
   margin-right: auto;
-  padding: 40px var(--container-inline-padding);
+  padding: 96px var(--container-inline-padding);
   box-sizing: border-box;
+}
+/* Mirror frontend hero heading scale — see rcmi.css. */
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy { --rcmi-hero-font-size: 3rem; }
+@media (min-width: 768px) {
+  .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy { --rcmi-hero-font-size: 4.5rem; }
+}
+@media (min-width: 992px) {
+  .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy { --rcmi-hero-font-size: 6.25rem; }
 }
 .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy { max-width: 570px; }
 .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy .eyebrow {
@@ -778,13 +784,34 @@
   color: var(--color-fg); font-size: .64rem; letter-spacing: .14em;
   text-transform: uppercase; font-weight: 700;
 }
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h1,
 .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 {
+  max-width: 570px;
   margin-bottom: 10px;
-  font-family: var(--font-serif);
-  font-size: 3.75rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 0.98;
+  font-family: var(--font-display);
+  font-size: var(--rcmi-hero-font-size);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.015625em;
+  line-height: 1;
+}
+/* Same compat pins as the Hero block — saved slide headings carry the
+   same frozen preset markup (mirrors rcmi.css). */
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h1 .has-inline-font-size[style="font-size: 3.75rem"],
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 .has-inline-font-size[style="font-size: 3.75rem"] {
+  font-size: var(--rcmi-hero-font-size) !important;
+}
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h1 .has-display-font,
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 .has-display-font {
+  letter-spacing: inherit;
+}
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h1 .has-inline-line-height[style="line-height: 1.2"],
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 .has-inline-line-height[style="line-height: 1.2"] {
+  line-height: inherit !important;
+}
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h1 strong,
+.editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 strong {
+  font-weight: inherit;
 }
 .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy .lede {
   max-width: 480px;
@@ -800,9 +827,9 @@
 @media (max-width: 900px) {
   .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-inner { padding: 72px var(--container-inline-padding) 96px; }
   .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy { width: 100%; max-width: 100%; }
+  .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h1,
   .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy h2 {
     max-width: 100%;
-    font-size: clamp(2.15rem, 9vw, 3.5rem);
     overflow-wrap: anywhere;
   }
   .editor-styles-wrapper .rcmi-slide-editor .rcmi-slide-copy .lede { max-width: 100%; font-size: 1rem; }

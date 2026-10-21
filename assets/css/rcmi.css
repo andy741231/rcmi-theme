@@ -432,14 +432,17 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
    line-height 1, letter-spacing -0.015625em). Sizes: 48px below 768px,
    72px from 768px to 991.99px, 100px at 992px and up. */
 .hero-copy,
-.rcmi-parallax-copy{ --rcmi-hero-font-size: 3rem; }
+.rcmi-parallax-copy,
+.rcmi-slide-copy{ --rcmi-hero-font-size: 3rem; }
 @media (min-width: 768px){
   .hero-copy,
-  .rcmi-parallax-copy{ --rcmi-hero-font-size: 4.5rem; }
+  .rcmi-parallax-copy,
+  .rcmi-slide-copy{ --rcmi-hero-font-size: 4.5rem; }
 }
 @media (min-width: 992px){
   .hero-copy,
-  .rcmi-parallax-copy{ --rcmi-hero-font-size: 6.25rem; }
+  .rcmi-parallax-copy,
+  .rcmi-slide-copy{ --rcmi-hero-font-size: 6.25rem; }
 }
 .hero-copy h1{
   max-width: 570px;
@@ -474,6 +477,10 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   overflow: hidden;
   color: var(--color-fg);
   background: #f8f5ee;
+  /* Override the generic section padding — the content's breathing room
+     comes entirely from .rcmi-parallax-inner (96px), keeping the total
+     gap predictable instead of section pad + inner pad stacking. */
+  padding: 0;
 }
 /* Parallax layers are <img> elements with inline styles for position,
    scale, object-fit, and z-index. The parallax JS adds translate3d
@@ -515,15 +522,13 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   position: relative; z-index: 4;
   width: 100%; max-width: var(--container-max);
   margin-left: auto; margin-right: auto;
-  padding: 40px var(--container-inline-padding);
+  padding: 96px var(--container-inline-padding);
   box-sizing: border-box;
 }
 .rcmi-parallax-copy{ max-width: 570px; }
-/* Section height is always exact: the block emits height+min-height
-   (the vh setting), so the section box is the vh value at every width.
-   Content taller than the vh height is clipped by .rcmi-parallax's
-   overflow:hidden (.hero leaves it visible) — increase the height or
-   shorten the content if clipping is unwanted. */
+/* Section height is a minimum, not exact: the block emits only
+   min-height (the vh setting), so content taller than that grows
+   the section instead of being clipped by overflow:hidden. */
 /* Content alignment for hero/parallax block.
    Only changes the horizontal position of the content block —
    text alignment within is controlled by the individual blocks
@@ -615,7 +620,11 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .has-text-color .rcmi-parallax-copy .lede,
 .has-text-color .hero-copy h1,
 .has-text-color .hero-copy .eyebrow,
-.has-text-color .hero-copy .lede{ color: inherit; }
+.has-text-color .hero-copy .lede,
+.has-text-color .rcmi-slide-copy h1,
+.has-text-color .rcmi-slide-copy h2,
+.has-text-color .rcmi-slide-copy .eyebrow,
+.has-text-color .rcmi-slide-copy .lede{ color: inherit; }
 /* Button always keeps its own color regardless of block text color */
 .has-text-color .hero-actions .btn{ color: #fff; }
 .rcmi-parallax-copy .hero-actions{ margin-top: 16px; }
@@ -1377,20 +1386,31 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .rcmi-slide-track{
   position: relative;
   width: 100%;
+  /* Grid stack: every slide occupies the same cell, so the track is
+     always as tall as the TALLEST slide — the slider keeps a fixed
+     height instead of resizing between slides. */
+  display: grid;
 }
 .rcmi-slide-track.is-animating{
   overflow: hidden;
 }
 .rcmi-slide{
   position: relative;
-  display: none;
+  display: flex;
   align-items: center;
+  grid-area: 1 / 1;
+  visibility: hidden;
   width: 100%;
   min-height: 30vh; /* Floor = control's minimum; parent slide-block sets inline min-height */
   box-sizing: border-box;
   overflow: hidden;
+  /* Override the generic section padding — see .rcmi-parallax. */
+  padding: 0;
 }
-.rcmi-slide.is-active{ display: flex; }
+/* Inactive slides stay in the grid cell (visibility:hidden) so they keep
+   sizing the track; only the active one is shown. Shorter slides stretch
+   to the track height and center their copy vertically. */
+.rcmi-slide.is-active{ visibility: visible; }
 /* Slide background <img> — oversized object-fit:cover box so the image
    fills the slide at any aspect ratio (background-size:N% underfilled
    vertically on narrow screens). Desktop values are inline; when a
@@ -1422,7 +1442,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   max-width: var(--container-max);
   margin-left: auto;
   margin-right: auto;
-  padding: 40px var(--container-inline-padding);
+  padding: 96px var(--container-inline-padding);
   box-sizing: border-box;
 }
 .rcmi-slide-copy{ max-width: 570px; }
@@ -1431,13 +1451,35 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   color: var(--color-fg); font-size: .64rem; letter-spacing: .14em;
   text-transform: uppercase; font-weight: 700;
 }
+.rcmi-slide-copy h1,
 .rcmi-slide-copy h2{
+  max-width: 570px;
   margin-bottom: 10px;
-  font-family: var(--font-serif);
-  font-size: 3.75rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: .98;
+  font-family: var(--font-display);
+  font-size: var(--rcmi-hero-font-size);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.015625em;
+  line-height: 1;
+}
+/* Same compat pins as the Hero block (see rules above) — saved slide
+   headings carry the same frozen preset markup: display-font spans,
+   font-size 3.75rem, and line-height 1.2 inline spans. */
+.rcmi-slide-copy h1 .has-inline-font-size[style="font-size: 3.75rem"],
+.rcmi-slide-copy h2 .has-inline-font-size[style="font-size: 3.75rem"]{
+  font-size: var(--rcmi-hero-font-size) !important;
+}
+.rcmi-slide-copy h1 .has-display-font,
+.rcmi-slide-copy h2 .has-display-font{
+  letter-spacing: inherit;
+}
+.rcmi-slide-copy h1 .has-inline-line-height[style="line-height: 1.2"],
+.rcmi-slide-copy h2 .has-inline-line-height[style="line-height: 1.2"]{
+  line-height: inherit !important;
+}
+.rcmi-slide-copy h1 strong,
+.rcmi-slide-copy h2 strong{
+  font-weight: inherit;
 }
 .rcmi-slide-copy .lede{
   max-width: 480px;
@@ -1528,9 +1570,9 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   }
   .rcmi-slide-inner{ padding: 72px var(--container-inline-padding) 96px; }
   .rcmi-slide-copy{ width: 100%; max-width: 100%; }
+  .rcmi-slide-copy h1,
   .rcmi-slide-copy h2{
     max-width: 100%;
-    font-size: clamp(2.15rem, 9vw, 3.5rem);
     overflow-wrap: anywhere;
   }
   .rcmi-slide-copy .lede{ max-width: 100%; font-size: 1rem; }
@@ -1538,7 +1580,6 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 }
 @media (max-width: 480px){
   .rcmi-slide-inner{ padding: 56px var(--container-inline-padding) 72px; }
-  .rcmi-slide-copy h2{ font-size: clamp(2rem, 8.5vw, 2.8rem); }
   .rcmi-slide-arrow{ width: 40px; height: 40px; font-size: 1.4rem; }
   .rcmi-slide-arrow-prev{ left: 10px; }
   .rcmi-slide-arrow-next{ right: 10px; }

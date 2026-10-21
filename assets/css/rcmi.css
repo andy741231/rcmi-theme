@@ -1398,8 +1398,6 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   position: relative;
   display: flex;
   align-items: center;
-  grid-area: 1 / 1;
-  visibility: hidden;
   width: 100%;
   min-height: 30vh; /* Floor = control's minimum; parent slide-block sets inline min-height */
   box-sizing: border-box;
@@ -1407,10 +1405,17 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   /* Override the generic section padding — see .rcmi-parallax. */
   padding: 0;
 }
-/* Inactive slides stay in the grid cell (visibility:hidden) so they keep
-   sizing the track; only the active one is shown. Shorter slides stretch
-   to the track height and center their copy vertically. */
-.rcmi-slide.is-active{ visibility: visible; }
+/* The track only exists in frontend markup (server-rendered) — slides
+   inside it stack in the same grid cell and hide until .is-active, so
+   the track is always as tall as the tallest slide. Inactive slides stay
+   in the cell to size the track; shorter ones stretch and center their
+   copy. Editor slides (no track) keep default visibility and stack as
+   normal block children. */
+.rcmi-slide-track > .rcmi-slide{
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.rcmi-slide-track > .rcmi-slide.is-active{ visibility: visible; }
 /* Slide background <img> — oversized object-fit:cover box so the image
    fills the slide at any aspect ratio (background-size:N% underfilled
    vertically on narrow screens). Desktop values are inline; when a

@@ -285,6 +285,12 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .dropdown{
   position:absolute; top: 100%; left: -20px;
   min-width: 240px;
+  /* Size to the longest item (~35+ chars fit) so short labels stay on
+     one line; longer items wrap at the cap and text-wrap:balance on the
+     link avoids a widow on the last line. */
+  width: max-content;
+  max-width: 320px;
+  box-sizing: border-box;
   background:#fff;
   border:1px solid var(--color-border);
   box-shadow: 0 16px 32px rgba(0,0,0,0.12);
@@ -296,6 +302,10 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .dropdown a{
   display:block; padding: 10px 12px; font-size: 0.9rem; font-weight:500; color: var(--color-fg);
   border-radius: var(--radius);
+  /* Balance wrapped lines so a lone word doesn't drop to the last line
+     (widow) — e.g. "…Research / Project". Unsupported browsers keep
+     normal wrapping. */
+  text-wrap: balance;
 }
 .dropdown a:hover{ background: var(--color-bg-alt); color: var(--color-primary); }
 
@@ -305,7 +315,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
 .dropdown .dd-item{ position:relative; margin: 0 -10px; padding: 0 10px; }
 .dropdown .dd-item > a{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .dropdown .dd-item > a svg{ width:10px; height:10px; opacity:0.6; flex:none; }
-.dropdown .dd-sub{ top:-11px; left:100%; min-width:220px; }
+.dropdown .dd-sub{ top:-11px; left:100%; min-width:220px; width:max-content; max-width:320px; }
 .dropdown .dd-item:hover > .dd-sub, .dropdown .dd-item:focus-within > .dd-sub{ opacity:1; visibility:visible; transform: translateY(0); }
 /* Flyouts under the last two top-level items would clip the viewport — flip them left. */
 .nav-links > li:nth-last-child(-n+2) .dd-sub{ left:auto; right:100%; }
@@ -346,7 +356,7 @@ body.has-fixed-header .site-main{ padding-top: var(--rcmi-header-offset, 0); }
   transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
 }
 .mobile-nav.is-open{ opacity:1; visibility:visible; transform:translateY(0); }
-.mobile-nav a{ padding:14px 4px; font-weight:600; font-size:1.05rem; color:var(--rcmi-header-text, #fff); border-bottom:1px solid color-mix(in srgb, var(--rcmi-header-text, #fff) 18%, transparent); }
+.mobile-nav a{ padding:14px 4px; font-weight:600; font-size:1.05rem; color:var(--rcmi-header-text, #fff); border-bottom:1px solid color-mix(in srgb, var(--rcmi-header-text, #fff) 18%, transparent); text-wrap: balance; }
 .mobile-nav a.is-sub{ padding-left:18px; font-weight:500; font-size:0.95rem; color: color-mix(in srgb, var(--rcmi-header-text, #fff) 78%, transparent); }
 .mobile-nav a.is-sub-sub{ padding-left:36px; font-weight:400; font-size:0.88rem; color: color-mix(in srgb, var(--rcmi-header-text, #fff) 60%, transparent); }
 .mobile-nav .mn-group{ margin-top: var(--space-2); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color: color-mix(in srgb, var(--rcmi-header-text, #fff) 60%, transparent); font-weight:700; padding: 6px 4px 0; }
